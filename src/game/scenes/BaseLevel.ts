@@ -189,8 +189,11 @@ export abstract class BaseLevel extends Scene {
 
     private onAllyDialog(data: { partLabel: string }) {
         this.player.playPickup();
-        this.scene.pause();
-        this.scene.launch('AllyDialog', { ...data, parentScene: this.levelKey });
+        // Brief delay so pickup animation is visible, then show dialog
+        this.time.delayedCall(800, () => {
+            this.scene.launch('AllyDialog', { ...data, parentScene: this.levelKey });
+            this.scene.pause();
+        });
     }
 
     private goToNextLevel() {
