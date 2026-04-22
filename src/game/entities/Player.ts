@@ -181,12 +181,16 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
             slam: 'hero_duck',
         };
         this.setTexture(texMap[s]);
-        // Squish Y-scale on duck so the character visually shrinks from the top
-        // (origin 0.5,1 keeps feet at ground level — only the head/body moves down)
+        this.setScale(0.18, 0.18);  // always full scale — no squish
+        // Shift the origin anchor slightly below the sprite bottom when ducking.
+        // With origin(0.5, 1) the sprite bottom = body position.
+        // Raising originY > 1 moves the body reference point below the sprite,
+        // which causes Phaser to render the sprite ~15 px lower — a clean duck
+        // with no distortion and without moving the physics body.
         if (s === 'duck' || s === 'slam') {
-            this.setScale(0.18, 0.12);
+            this.setOrigin(0.5, 1.15);
         } else {
-            this.setScale(0.18, 0.18);
+            this.setOrigin(0.5, 1.0);
         }
     }
 
