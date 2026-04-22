@@ -16,6 +16,9 @@ export class HUD extends Scene {
 
     create() {
         this.alive = true;
+        // Clear arrays so stale references from a previous run don't linger
+        this.skillIcons = [];
+        this.skillLabels = [];
 
         // Health bar
         this.add.rectangle(110, 24, 204, 20, 0x000000).setOrigin(0, 0.5).setScrollFactor(0).setDepth(100);
