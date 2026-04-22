@@ -182,18 +182,12 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         };
         this.setTexture(texMap[s]);
         this.setScale(0.18, 0.18);
-        // Keep origin fixed at (0.5, 1) always — changing origin mid-frame causes
-        // a physics-sync gap that renders a ghost/duplicate of the sprite.
-        this.setOrigin(0.5, 1.0);
-        // Use body offset to shift the sprite lower when ducking.
-        // sprite.y = body.bottom - offsetY, so reducing offsetY pushes sprite.y
-        // higher (larger y = lower on screen), giving a clean ~15px downward shift.
-        const body = this.body as Phaser.Physics.Arcade.Body;
-        if (s === 'duck' || s === 'slam') {
-            body.setOffset(10, -5);
-        } else {
-            body.setOffset(10, 10);
-        }
+        // Origin and offset stay constant across all states.
+        // setOrigin(0.5, 1) anchors the sprite at its feet — the feet stay at the
+        // same world y in every state, so there is no upward or downward jump.
+        // Never change offset here: a smaller offset.y would lift the body off the
+        // ground, making onGround=false the very next frame and triggering a
+        // duck→jump→duck oscillation that looks like a ghost/duplicate sprite.
     }
 
     private updateHitbox() {
