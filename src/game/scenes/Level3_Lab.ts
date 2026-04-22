@@ -142,10 +142,10 @@ export class Level3_Lab extends BaseLevel {
         // Lab wall panels
         gfx.lineStyle(1, 0x224466, 0.5);
         for (let gx = 0; gx < 3200; gx += 80) {
-            gfx.strokeLinePoints([{ x: gx, y: 0 }, { x: gx, y: 768 }]);
+            gfx.lineBetween(gx, 0, gx, 768);
         }
         for (let gy = 0; gy < 768; gy += 80) {
-            gfx.strokeLinePoints([{ x: 0, y: gy }, { x: 3200, y: gy }]);
+            gfx.lineBetween(0, gy, 3200, gy);
         }
 
         // Control panels
