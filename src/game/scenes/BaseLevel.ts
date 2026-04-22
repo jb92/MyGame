@@ -86,9 +86,9 @@ export abstract class BaseLevel extends Scene {
 
         // Exit zone label
         const exitX = 3100;
-        this.exitZone = this.add.rectangle(exitX, 720, 60, 120, 0x00ff88, 0.3)
+        this.exitZone = this.add.rectangle(exitX, 700, 60, 120, 0x00ff88, 0.3)
             .setStrokeStyle(2, 0x00ff88);
-        this.add.text(exitX, 650, '▶ EXIT', { fontSize: '12px', color: '#00ff88' }).setOrigin(0.5);
+        this.add.text(exitX, 630, '▶ EXIT', { fontSize: '12px', color: '#00ff88' }).setOrigin(0.5);
 
         // Event listeners
         EventBus.on('player-dead', this.onPlayerDead, this);
@@ -132,12 +132,10 @@ export abstract class BaseLevel extends Scene {
             });
         }
 
-        // Exit zone check
-        const distToExit = Phaser.Math.Distance.Between(
-            this.player.x, this.player.y,
-            this.exitZone.x, this.exitZone.y
-        );
-        if (distToExit < 50) {
+        // Exit zone check (bounding-box, forgiving for different sprite.y values)
+        const dx = Math.abs(this.player.x - this.exitZone.x);
+        const dy = Math.abs(this.player.y - this.exitZone.y);
+        if (dx < 40 && dy < 70) {
             this.player.playVictory(() => this.goToNextLevel());
         }
     }

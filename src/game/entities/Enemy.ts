@@ -43,11 +43,13 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
 
         const body = this.body as Phaser.Physics.Arcade.Body;
         body.setGravityY(400);
-        // Placeholder texture is 60×70px at scale 1.0
+        // Placeholder 60×70, visible feet at texture y=65 (4px padding below).
+        // With origin(0.5,1): feet world = sprite.y + 1*(65-70) = sprite.y - 5
+        // body.bottom should = sprite.y - 5 → offset.y + sourceH = 65
         body.setSize(44, 62);
-        body.setOffset(8, 8);
+        body.setOffset(8, 3);
         this.setScale(1.0);
-        this.setOrigin(0.5, 1);  // feet-anchor like the hero
+        this.setOrigin(0.5, 1);
         this.setDepth(9);
 
         this.healthBarBg = scene.add.rectangle(x, y - 80, 50, 6, 0x333333).setDepth(20);
