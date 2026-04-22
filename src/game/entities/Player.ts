@@ -156,7 +156,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         }
 
         // --- Jump ---
-        if (Phaser.Input.Keyboard.JustDown(this.cursors.up) && onGround) {
+        if ((Phaser.Input.Keyboard.JustDown(this.cursors.up) || Phaser.Input.Keyboard.JustDown(this.cursors.space)) && onGround) {
             body.setVelocityY(JUMP_VELOCITY);
         }
 

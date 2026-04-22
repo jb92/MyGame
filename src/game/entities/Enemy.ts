@@ -54,8 +54,8 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
         this.setOrigin(0.5, 1);
         this.setDepth(9);
 
-        this.healthBarBg = scene.add.rectangle(x, y - 80, 50, 6, 0x333333).setDepth(20);
-        this.healthBar = scene.add.rectangle(x, y - 80, 50, 6, 0xff2222).setDepth(21);
+        this.healthBarBg = scene.add.rectangle(-100, -100, 50, 6, 0x333333).setDepth(20);
+        this.healthBar = scene.add.rectangle(-100, -100, 50, 6, 0xff2222).setDepth(21);
 
         this.createAnimations();
         this.play('anim_gman_walk');
@@ -180,8 +180,8 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
     private updateHealthBar() {
         const ratio = this.hp / this.maxHp;
         this.healthBar.width = 50 * ratio;
-        this.healthBarBg.setPosition(this.x, this.y - 80);
-        this.healthBar.setPosition(this.x - 25 + (this.healthBar.width / 2), this.y - 80);
+        this.healthBarBg.setPosition(this.x, this.y - 110);
+        this.healthBar.setPosition(this.x - 25 + (this.healthBar.width / 2), this.y - 110);
     }
 
     destroy(fromScene?: boolean) {
