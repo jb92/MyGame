@@ -22,8 +22,8 @@ const hh = Math.floor(height / 2);
 const sprites = [
     { name: 'idle',  left: 0,  top: 0,  width: hw, height: hh },
     { name: 'run',   left: hw, top: 0,  width: hw, height: hh },
-    { name: 'punch', left: 0,  top: hh, width: hw, height: hh },
-    { name: 'duck',  left: hw, top: hh, width: hw, height: hh },
+    { name: 'duck',  left: 0,  top: hh, width: hw, height: hh },  // bottom-left = crouching
+    { name: 'punch', left: hw, top: hh, width: hw, height: hh },  // bottom-right = punch
 ];
 
 for (const s of sprites) {

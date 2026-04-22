@@ -55,8 +55,8 @@ export abstract class BaseLevel extends Scene {
         this.platforms = this.physics.add.staticGroup();
         this.buildPlatforms();
 
-        // Player
-        this.player = new Player(this, 80, 600);
+        // Player — spawn just above the ground (ground top = 728, feet-anchor origin)
+        this.player = new Player(this, 80, 720);
         this.physics.add.collider(this.player, this.platforms);
 
         // Camera follows player
