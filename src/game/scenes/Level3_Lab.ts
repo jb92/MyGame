@@ -1,3 +1,4 @@
+import * as Phaser from 'phaser';
 import { BaseLevel, LevelConfig } from './BaseLevel';
 import { Enemy } from '../entities/Enemy';
 import { Ally } from '../entities/Ally';
@@ -168,3 +169,4 @@ export class Level3_Lab extends BaseLevel {
         }
     }
 }
+

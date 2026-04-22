@@ -1,4 +1,5 @@
-import { GameObjects, Scene } from 'phaser';
+import * as Phaser from 'phaser'
+import { Scene } from 'phaser';
 import { EventBus } from '../EventBus';
 import { GameState } from '../systems/GameState';
 
@@ -82,3 +83,4 @@ export class MainMenu extends Scene
         });
     }
 }
+

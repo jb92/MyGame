@@ -1,3 +1,4 @@
+import * as Phaser from 'phaser';
 import { EventBus } from '../EventBus';
 
 type EnemyState = 'patrol' | 'chase' | 'attack' | 'stun' | 'dead';
@@ -158,3 +159,4 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
         super.destroy(fromScene);
     }
 }
+

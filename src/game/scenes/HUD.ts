@@ -1,3 +1,4 @@
+import * as Phaser from 'phaser'
 import { Scene } from 'phaser';
 import { EventBus } from '../EventBus';
 import { GameState, Skill } from '../systems/GameState';
@@ -73,3 +74,4 @@ export class HUD extends Scene {
         EventBus.off('spare-part-collected', this.updateParts, this);
     }
 }
+

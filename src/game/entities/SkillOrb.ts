@@ -1,3 +1,4 @@
+import * as Phaser from 'phaser';
 import { EventBus } from '../EventBus';
 import { GameState, Skill } from '../systems/GameState';
 
@@ -89,3 +90,4 @@ export class SkillOrb extends Phaser.Physics.Arcade.StaticGroup {
         return this.orb;
     }
 }
+

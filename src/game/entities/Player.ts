@@ -1,3 +1,4 @@
+import * as Phaser from 'phaser';
 import { GameState, Skill } from '../systems/GameState';
 import { EventBus } from '../EventBus';
 
@@ -224,3 +225,4 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         super.destroy(fromScene);
     }
 }
+

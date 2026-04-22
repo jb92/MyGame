@@ -1,3 +1,4 @@
+import * as Phaser from 'phaser'
 import { Scene } from 'phaser';
 import { Player } from '../entities/Player';
 import { Enemy } from '../entities/Enemy';
@@ -206,3 +207,4 @@ export abstract class BaseLevel extends Scene {
         EventBus.off('show-ally-dialog', this.onAllyDialog, this);
     }
 }
+

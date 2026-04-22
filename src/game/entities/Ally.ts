@@ -1,3 +1,4 @@
+import * as Phaser from 'phaser';
 import { EventBus } from '../EventBus';
 import { GameState } from '../systems/GameState';
 
@@ -56,3 +57,4 @@ export class Ally {
         return this.sprite;
     }
 }
+
