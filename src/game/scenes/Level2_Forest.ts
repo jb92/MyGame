@@ -52,11 +52,11 @@ export class Level2_Forest extends BaseLevel {
     placeActors() {
         const positions = [320, 750, 1100, 1500, 1900, 2350, 2750];
         positions.forEach(x => {
-            const e = new Enemy(this, x, 680, this.player, this.config.enemyHp, this.config.enemyDmg);
+            const e = new Enemy(this, x, 720, this.player, this.config.enemyHp, this.config.enemyDmg);
             this.enemies.push(e);
         });
 
-        this.ally = new Ally(this, 2600, 680, this.player, this.config.allyPartLabel);
+        this.ally = new Ally(this, 2600, 728, this.player, this.config.allyPartLabel);
         this.skillOrb = new SkillOrb(this, 2310, 220, Skill.COMBO_PUNCH);
 
         this.createForestBackdrop();

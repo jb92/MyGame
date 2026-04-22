@@ -58,11 +58,11 @@ export class Level3_Lab extends BaseLevel {
     placeActors() {
         const positions = [300, 650, 1000, 1350, 1700, 2050, 2400, 2750, 3050];
         positions.forEach(x => {
-            const e = new Enemy(this, x, 680, this.player, this.config.enemyHp, this.config.enemyDmg);
+            const e = new Enemy(this, x, 720, this.player, this.config.enemyHp, this.config.enemyDmg);
             this.enemies.push(e);
         });
 
-        this.ally = new Ally(this, 2850, 680, this.player, this.config.allyPartLabel);
+        this.ally = new Ally(this, 2850, 728, this.player, this.config.allyPartLabel);
         this.skillOrb = new SkillOrb(this, 2610, 180, Skill.GROUND_SLAM);
 
         // Starship object near the exit

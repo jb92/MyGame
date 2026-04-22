@@ -20,7 +20,7 @@ export class Ally {
         this.playerRef = player;
         this.partLabel = partLabel;
 
-        this.sprite = scene.physics.add.sprite(x, y, 'ally').setScale(1.0).setDepth(8);
+        this.sprite = scene.physics.add.sprite(x, y, 'ally').setScale(1.0).setOrigin(0.5, 1).setDepth(8);
         (this.sprite.body as Phaser.Physics.Arcade.Body).setAllowGravity(false);
         (this.sprite.body as Phaser.Physics.Arcade.Body).setImmovable(true);
 

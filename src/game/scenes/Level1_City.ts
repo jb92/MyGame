@@ -66,11 +66,11 @@ export class Level1_City extends BaseLevel {
     placeActors() {
         const positions = [350, 680, 1100, 1650, 2300];
         positions.forEach(x => {
-            const e = new Enemy(this, x, 680, this.player, this.config.enemyHp, this.config.enemyDmg);
+            const e = new Enemy(this, x, 720, this.player, this.config.enemyHp, this.config.enemyDmg);
             this.enemies.push(e);
         });
 
-        this.ally = new Ally(this, 2500, 680, this.player, this.config.allyPartLabel);
+        this.ally = new Ally(this, 2500, 728, this.player, this.config.allyPartLabel);
         this.skillOrb = new SkillOrb(this, 1490, 360, Skill.DASH);
 
         this.createCityBackdrop();

@@ -53,11 +53,13 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         const body = this.body as Phaser.Physics.Arcade.Body;
         body.setGravityY(300);
         body.setCollideWorldBounds(true);
-        // Body 60×80 px. With origin(0.5,1) displayOriginY=128.
-        // offset.y = displayOriginY - bodyHeight = 128 - 80 = 48
-        // → body.bottom = sprite.y (feet exactly at collision surface)
-        body.setSize(60, 80);
-        body.setOffset(34, 48);
+        // setSize/setOffset are in TEXTURE pixels (pre-scale).
+        // Phaser formula: body.y = sprite.y + scale*(offset.y - displayOriginY)
+        // displayOriginY = originY * frameHeight = 1.0 * 256 = 256
+        // For body.bottom = sprite.y: offset.y = 256 - sourceHeight
+        // World body ≈ 50×80 px (sourceWidth=100, sourceHeight=160 × scale 0.5)
+        body.setSize(100, 160);
+        body.setOffset(78, 96);
         this.setScale(HERO_SCALE);
         this.setOrigin(0.5, 1);
         this.setDepth(10);
@@ -243,8 +245,8 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
 
         const body = this.body as Phaser.Physics.Arcade.Body;
         if (!body) return;
-        body.setSize(60, 80);
-        body.setOffset(34, 48);
+        body.setSize(100, 160);
+        body.setOffset(78, 96);
     }
 
     /** Play the victory animation (one-shot), locks input, then calls cb. */
@@ -274,7 +276,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     private updateHitbox() {
         const dir = this.facingRight ? 1 : -1;
         const offsetX = dir * 55;
-        this.punchHitbox.setPosition(this.x + offsetX, this.y - 5);
+        this.punchHitbox.setPosition(this.x + offsetX, this.y - 40);
     }
 
     isPunching(): boolean {
