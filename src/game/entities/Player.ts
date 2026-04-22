@@ -37,8 +37,11 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
 
         const body = this.body as Phaser.Physics.Arcade.Body;
         body.setGravityY(300);
-        body.setSize(60, 90);
-        body.setOffset(220, 80);
+        // Scale 0.18 → sprite displayed at 512*0.18 = 92px world size.
+        // Character feet sit at ~86px from sprite top (93% of cell height).
+        // Body (46×68): offset_y(18) + height(68) = 86 → bottom aligns with feet.
+        body.setSize(46, 68);
+        body.setOffset(23, 18);
         this.setScale(0.18);
         this.setDepth(10);
 
@@ -91,13 +94,14 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         // --- Duck ---
         if (onGround && this.keyDown.isDown && !moving) {
             this.setState('duck');
-            body.setSize(60, 60);
-            body.setOffset(220, 110);
+            // Shorter body when ducking: offset_y(36) + height(50) = 86 → same feet alignment
+            body.setSize(46, 50);
+            body.setOffset(23, 36);
             this.updateHitbox();
             return;
         } else {
-            body.setSize(60, 90);
-            body.setOffset(220, 80);
+            body.setSize(46, 68);
+            body.setOffset(23, 18);
         }
 
         // --- Jump ---

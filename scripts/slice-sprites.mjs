@@ -11,7 +11,7 @@ import { fileURLToPath } from 'url';
 import path from 'path';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const src = path.resolve(__dirname, '../resources/OIG1.BFg7eaJVIFVc.jpg');
+const src = path.resolve(__dirname, '../resources/heroSprites.png');
 const outDir = path.resolve(__dirname, '../public/assets/hero');
 
 const meta = await sharp(src).metadata();
