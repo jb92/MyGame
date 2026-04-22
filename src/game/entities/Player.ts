@@ -10,7 +10,7 @@ const PUNCH_COOLDOWN = 400;
 const COMBO_WINDOW = 600;
 const SLAM_VELOCITY = 600;
 
-export type PlayerState = 'idle' | 'run' | 'jump' | 'duck' | 'punch' | 'dash' | 'slam';
+export type PlayerState = 'idle' | 'run' | 'jump' | 'punch' | 'dash' | 'slam';
 
 export class Player extends Phaser.Physics.Arcade.Sprite {
     private cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
@@ -94,15 +94,6 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
             body.setVelocityX(0);
         }
 
-        // --- Duck ---
-        // Only change the texture — do NOT resize the body (resizing while on ground
-        // shifts sprite.y upward because body.y is anchored to ground).
-        if (onGround && this.keyDown.isDown && !moving) {
-            this.setState('duck');
-            this.updateHitbox();
-            return;
-        }
-
         // --- Jump ---
         if (Phaser.Input.Keyboard.JustDown(this.cursors.up) && onGround) {
             body.setVelocityY(JUMP_VELOCITY);
@@ -175,7 +166,6 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
             idle: 'hero_idle',
             run: 'hero_run',
             jump: 'hero_run',
-            duck: 'hero_duck',
             punch: 'hero_punch',
             dash: 'hero_run',
             slam: 'hero_duck',
@@ -186,25 +176,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
 
         const body = this.body as Phaser.Physics.Arcade.Body;
         if (!body) return;
-
-        // Phaser 4 body↔sprite sync (ArcadeBody.updateFromGameObject, every preUpdate):
-        //   body.y = sprite.y + scaleY*(offset.y − displayOriginY)
-        // With originY=1 this collapses to:  body.bottom = sprite.y + scaleY*offset.y
-        //
-        // Duck sprite feet are at ≈87% height; idle feet at ≈96% — a visual gap
-        // of ≈8.1 px.  To close it we LOWER sprite.y by 8.1 px AND simultaneously
-        // lower offset.y by 45 source-px (8.1 / 0.18 = 45).  The two changes
-        // cancel in the body formula → body never moves → no ground-leave
-        // oscillation, no ghost, no duck→jump flicker.
-        if (s === 'duck' || s === 'slam') {
-            body.setOffset(10, -35); // 45 source-px less than normal
-            this.y += 8.1;          // compensating visual shift (45 × 0.18 = 8.1 px)
-        } else {
-            body.setOffset(10, 10);
-            // No sprite.y change needed: exiting duck leaves body.bottom slightly
-            // above the physics ground; physics flushes it in one step and
-            // postUpdate propagates that delta back to sprite.y automatically.
-        }
+        body.setOffset(10, 10);
     }
 
     private updateHitbox() {
