@@ -53,9 +53,10 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         const body = this.body as Phaser.Physics.Arcade.Body;
         body.setGravityY(300);
         body.setCollideWorldBounds(true);
-        body.setOffset(10, 10);
-        // Trim body to the character's visible area (skip transparent padding)
-        body.setSize(200, 230);
+        // Body: 60×90 world-px, positioned at the lower portion of the sprite
+        // so feet align with ground. offset.y = displayHeight - bodyHeight = 128 - 90 = 38
+        body.setSize(60, 90);
+        body.setOffset(34, 38);
         this.setScale(HERO_SCALE);
         this.setOrigin(0.5, 1);
         this.setDepth(10);
@@ -241,8 +242,8 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
 
         const body = this.body as Phaser.Physics.Arcade.Body;
         if (!body) return;
-        body.setSize(200, 230);
-        body.setOffset(10, 10);
+        body.setSize(60, 90);
+        body.setOffset(34, 38);
     }
 
     /** Play the victory animation (one-shot), locks input, then calls cb. */

@@ -29,19 +29,9 @@ export class Level1_City extends BaseLevel {
     }
 
     buildPlatforms() {
-        // Create city platform animations (5 animation frames from column variations)
-        if (!this.anims.exists('city_plat_anim')) {
-            this.anims.create({
-                key: 'city_plat_anim',
-                frames: this.anims.generateFrameNumbers('city_plat_wide', { start: 0, end: 4 }),
-                frameRate: 4,
-                repeat: -1,
-            });
-        }
-
         this.makeGround();
 
-        // City platforms — use animated sprite overlays
+        // City platforms — static sprite overlays
         this.makeCityPlatform(200, 620, 180);
         this.makeCityPlatform(500, 560, 160);
         this.makeCityPlatform(780, 500, 200);
@@ -54,20 +44,13 @@ export class Level1_City extends BaseLevel {
         this.makeCityPlatform(2650, 620, 160);
         this.makeCityPlatform(2900, 560, 180);
 
-        // Buildings (tall platforms as walls/edges) — keep as solid blocks
-        this.makePlatform(400, 400, 30, 320);
-        this.makePlatform(900, 360, 30, 360);
-        this.makePlatform(1500, 420, 30, 300);
-        this.makePlatform(2200, 380, 30, 340);
-        this.makePlatform(2800, 400, 30, 320);
-
         // Rooftops
         this.makeCityPlatform(380, 400, 200, 16);
         this.makeCityPlatform(880, 360, 200, 16);
         this.makeCityPlatform(1480, 420, 200, 16);
     }
 
-    /** Create a platform with an animated city-tile sprite overlay. */
+    /** Create a platform with a static city-tile sprite overlay. */
     private makeCityPlatform(x: number, y: number, w: number, h = 24) {
         // Invisible physics body for collision
         const gfx = this.add.graphics();
@@ -79,13 +62,12 @@ export class Level1_City extends BaseLevel {
         const plat = this.platforms.create(x + w / 2, y, key);
         plat.setAlpha(0).refreshBody();
 
-        // Animated visual overlay — clean single platform sprite (156×36)
+        // Static visual overlay — single platform sprite (156×36)
         const scale = w / 156;
         const sprite = this.add.sprite(x + w / 2, y, 'city_plat_wide', 0);
         sprite.setScale(scale);
         sprite.setOrigin(0.5, 0.5);
         sprite.setDepth(2);
-        sprite.play({ key: 'city_plat_anim', startFrame: Math.floor(Math.random() * 5) });
         this.platSprites.push(sprite);
     }
 
