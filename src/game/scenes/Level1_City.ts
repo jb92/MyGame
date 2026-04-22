@@ -62,11 +62,11 @@ export class Level1_City extends BaseLevel {
         const plat = this.platforms.create(x + w / 2, y, key);
         plat.setAlpha(0).refreshBody();
 
-        // Static visual overlay — single platform sprite (156×36)
+        // Static visual overlay — top-aligned with physics body
         const scale = w / 156;
-        const sprite = this.add.sprite(x + w / 2, y, 'city_plat_wide', 0);
+        const sprite = this.add.sprite(x + w / 2, y - h / 2, 'city_plat_wide', 0);
         sprite.setScale(scale);
-        sprite.setOrigin(0.5, 0.5);
+        sprite.setOrigin(0.5, 0);  // anchor at top so visual extends downward from physics surface
         sprite.setDepth(2);
         this.platSprites.push(sprite);
     }
