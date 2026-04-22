@@ -184,23 +184,27 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         this.setScale(0.18, 0.18);
         this.setOrigin(0.5, 1.0);
 
-        // The duck sprite has ~12px of empty space at the bottom of its canvas
-        // (feet land at ~87% sprite height vs ~96% for idle).  To keep feet on
-        // the ground we shift the sprite ~9px lower by using a smaller offsetY.
-        //
-        // Changing body.setOffset() recalculates body.position from sprite.position,
-        // which would lift the body off the ground and cause a duck↔jump oscillation.
-        // Fix: save body.bottom first, change offset, then restore body.position.y
-        // so the physics body stays at the exact same world-space Y.
         const body = this.body as Phaser.Physics.Arcade.Body;
         if (!body) return;
-        const prevBottom = body.bottom;
+
+        // Phaser 4 body↔sprite sync (ArcadeBody.updateFromGameObject, every preUpdate):
+        //   body.y = sprite.y + scaleY*(offset.y − displayOriginY)
+        // With originY=1 this collapses to:  body.bottom = sprite.y + scaleY*offset.y
+        //
+        // Duck sprite feet are at ≈87% height; idle feet at ≈96% — a visual gap
+        // of ≈8.1 px.  To close it we LOWER sprite.y by 8.1 px AND simultaneously
+        // lower offset.y by 45 source-px (8.1 / 0.18 = 45).  The two changes
+        // cancel in the body formula → body never moves → no ground-leave
+        // oscillation, no ghost, no duck→jump flicker.
         if (s === 'duck' || s === 'slam') {
-            body.setOffset(10, 1);   // shifts sprite.y from 718 → 727 when on ground
+            body.setOffset(10, -35); // 45 source-px less than normal
+            this.y += 8.1;          // compensating visual shift (45 × 0.18 = 8.1 px)
         } else {
             body.setOffset(10, 10);
+            // No sprite.y change needed: exiting duck leaves body.bottom slightly
+            // above the physics ground; physics flushes it in one step and
+            // postUpdate propagates that delta back to sprite.y automatically.
         }
-        body.position.y = prevBottom - body.height; // restore body world-Y
     }
 
     private updateHitbox() {
