@@ -49,6 +49,9 @@ export abstract class BaseLevel extends Scene {
         this.config = this.getLevelConfig();
         this.cameras.main.setBackgroundColor(this.config.bgColor);
 
+        // Smooth fade-in from cutscene or level transition
+        this.cameras.main.fadeIn(800, 0, 0, 0);
+
         // Physics world
         this.physics.world.setBounds(0, 0, 3200, 768);
         this.cameras.main.setBounds(0, 0, 3200, 768);

@@ -93,8 +93,16 @@ export class MainMenu extends Scene
 
     private startGame() {
         GameState.reset();
-        this.cameras.main.fade(400, 0, 0, 0, false, (_cam: any, p: number) => {
-            if (p === 1) this.scene.start('IntroCutscene');
+        // Fade out UI only, keeping the sky visible for smooth transition
+        this.tweens.add({
+            targets: this.children.list.filter(c => (c as any).depth >= 10),
+            alpha: 0,
+            duration: 600,
+            onComplete: () => {
+                this.cameras.main.fade(400, 0, 0, 0, false, (_cam: any, p: number) => {
+                    if (p === 1) this.scene.start('IntroCutscene');
+                });
+            },
         });
     }
 }
