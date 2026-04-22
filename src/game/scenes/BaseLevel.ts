@@ -105,6 +105,7 @@ export abstract class BaseLevel extends Scene {
 
     update(_time: number, delta: number) {
         this.player.update(delta);
+        this.enemies = this.enemies.filter(e => e.active);
         this.enemies.forEach(e => e.update(delta));
         this.ally?.update();
 

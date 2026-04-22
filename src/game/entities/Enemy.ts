@@ -54,7 +54,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
     }
 
     update(delta: number) {
-        if (this.state === 'dead') return;
+        if (this.state === 'dead' || !this.active || !this.body) return;
 
         this.attackCooldown = Math.max(0, this.attackCooldown - delta);
         this.stunTimer = Math.max(0, this.stunTimer - delta);
