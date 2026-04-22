@@ -11,10 +11,9 @@ export class Victory extends Scene {
 
         this.cameras.main.setBackgroundColor('#001122');
 
-        // Starship animation
-        const ship = this.add.rectangle(W / 2, H - 80, 120, 50, 0x88aaff)
-            .setStrokeStyle(3, 0xffffff);
-        this.add.rectangle(W / 2, H - 95, 60, 20, 0xaaccff);
+        // Repaired starship (frame 0) flies away
+        const ship = this.add.sprite(W / 2, H - 80, 'starship', 0)
+            .setScale(0.18);
 
         this.tweens.add({
             targets: ship,

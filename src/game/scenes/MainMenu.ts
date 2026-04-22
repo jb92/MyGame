@@ -29,11 +29,8 @@ export class MainMenu extends Scene
             bg.fillCircle(Math.random() * W, Math.random() * H * 0.7, Math.random() < 0.8 ? 1 : 2);
         }
 
-        // Crashed ship silhouette
-        bg.fillStyle(0x334455, 0.7);
-        bg.fillEllipse(W / 2 + 200, H - 100, 160, 55);
-        bg.fillStyle(0x223344, 0.5);
-        bg.fillEllipse(W / 2 + 200, H - 115, 70, 30);
+        // Crashed ship on the ground (damaged = frame 2)
+        this.add.sprite(W / 2 + 200, H - 90, 'starship', 2).setScale(0.12).setDepth(1);
 
         // Title
         this.title = this.add.text(W / 2, 160, '🐼 ALIEN PANDA', {

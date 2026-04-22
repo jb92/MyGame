@@ -73,29 +73,16 @@ export class Level3_Lab extends BaseLevel {
 
     private buildStarship() {
         const x = 3050;
-        const y = 500;
-        const gfx = this.add.graphics();
+        const y = 620;
 
-        // Ship body
-        gfx.fillStyle(0x7799bb, 1);
-        gfx.fillEllipse(0, 0, 140, 50);
-        // Cockpit
-        gfx.fillStyle(0x99bbdd, 1);
-        gfx.fillEllipse(0, -22, 60, 28);
-        // Engine glow
-        gfx.fillStyle(0xff6600, 0.7);
-        gfx.fillCircle(-62, 8, 10);
-        gfx.fillCircle(62, 8, 10);
-        gfx.generateTexture('starship_crashed', 180, 100);
-        gfx.destroy();
-
-        this.starship = this.add.container(x, y, [
-            this.add.image(0, 0, 'starship_crashed').setScale(0.9),
-        ]).setDepth(5);
+        // Show damaged ship (frame 2)
+        const shipSprite = this.add.sprite(x, y, 'starship', 2).setScale(0.2).setDepth(5);
+        this.starship = this.add.container(x, y).setDepth(5);
 
         // Interaction zone
         this.starshipCollider = this.physics.add.staticGroup();
-        const zone = this.physics.add.sprite(x, y, 'starship_crashed').setAlpha(0);
+        const zone = this.add.zone(x, y, 200, 100);
+        this.physics.add.existing(zone, true);
         this.starshipCollider.add(zone);
 
         const label = this.add.text(x, y - 70, '🚀 YOUR STARSHIP', {
@@ -103,6 +90,9 @@ export class Level3_Lab extends BaseLevel {
             stroke: '#000000', strokeThickness: 3,
         }).setOrigin(0.5).setDepth(20);
         this.tweens.add({ targets: label, y: y - 80, duration: 800, yoyo: true, repeat: -1 });
+
+        // Store sprite reference for repair swap
+        this['_shipSprite'] = shipSprite;
 
         this.physics.add.overlap(this.player, zone, () => {
             this.tryRepairShip();
@@ -126,7 +116,10 @@ export class Level3_Lab extends BaseLevel {
             }
             return;
         }
-        // All parts collected! Launch Victory
+        // All parts collected! Swap to repaired ship, then launch Victory
+        const shipSprite = this['_shipSprite'] as Phaser.GameObjects.Sprite;
+        if (shipSprite) shipSprite.setFrame(0);
+
         EventBus.off('player-dead');
         this.scene.stop('HUD');
         this.cameras.main.fade(800, 255, 255, 255, false, (_cam: any, progress: number) => {

@@ -38,6 +38,9 @@ export class Preloader extends Scene
         this.load.spritesheet('hero_dash',    'hero/Martin-dash.png',    frameConfig);
         this.load.spritesheet('hero_victory', 'hero/Martin-victory.png', frameConfig);
         this.load.spritesheet('hero_pickup',  'hero/Martin-pickup.png',  frameConfig);
+
+        // Starship: 1024×1024, 3 rows — frame 0=repaired, frame 2=damaged
+        this.load.spritesheet('starship', 'ship/Starship-nobg.png', { frameWidth: 1024, frameHeight: 341 });
     }
 
     create ()
