@@ -50,24 +50,16 @@ export class Level1_City extends BaseLevel {
         this.makeCityPlatform(1480, 420, 200, 16);
     }
 
-    /** Create a platform with a static city-tile sprite overlay. */
+    /** Create a platform using the city sprite directly as physics body. */
     private makeCityPlatform(x: number, y: number, w: number, h = 24) {
-        // Invisible physics body for collision
-        const gfx = this.add.graphics();
-        gfx.fillStyle(0x000000, 0);
-        gfx.fillRect(0, 0, w, h);
-        const key = `cplat_${x}_${y}`;
-        gfx.generateTexture(key, w, h);
-        gfx.destroy();
-        const plat = this.platforms.create(x + w / 2, y, key);
-        plat.setAlpha(0).refreshBody();
-
-        // Static visual overlay — top-aligned with physics body
-        const scale = w / 156;
-        const sprite = this.add.sprite(x + w / 2, y - h / 2, 'city_plat_wide', 0);
-        sprite.setScale(scale);
-        sprite.setOrigin(0.5, 0);  // anchor at top so visual extends downward from physics surface
+        const scaleX = w / 156;
+        const scaleY = h / 36;
+        const sprite = this.add.sprite(x + w / 2, y, 'city_plat_wide', 0);
+        sprite.setScale(scaleX, scaleY);
+        sprite.setOrigin(0.5, 0.5);
         sprite.setDepth(2);
+        this.physics.add.existing(sprite, true);  // static body
+        this.platforms.add(sprite);
         this.platSprites.push(sprite);
     }
 

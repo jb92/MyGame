@@ -43,14 +43,15 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
 
         const body = this.body as Phaser.Physics.Arcade.Body;
         body.setGravityY(400);
-        // Placeholder texture is 60×70px at scale 1.0 (world size 60×70px)
+        // Placeholder texture is 60×70px at scale 1.0
         body.setSize(44, 62);
         body.setOffset(8, 8);
         this.setScale(1.0);
+        this.setOrigin(0.5, 1);  // feet-anchor like the hero
         this.setDepth(9);
 
-        this.healthBarBg = scene.add.rectangle(x, y - 55, 50, 6, 0x333333).setDepth(20);
-        this.healthBar = scene.add.rectangle(x, y - 55, 50, 6, 0xff2222).setDepth(21);
+        this.healthBarBg = scene.add.rectangle(x, y - 80, 50, 6, 0x333333).setDepth(20);
+        this.healthBar = scene.add.rectangle(x, y - 80, 50, 6, 0xff2222).setDepth(21);
     }
 
     update(delta: number) {
@@ -151,8 +152,8 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
     private updateHealthBar() {
         const ratio = this.hp / this.maxHp;
         this.healthBar.width = 50 * ratio;
-        this.healthBarBg.setPosition(this.x, this.y - 55);
-        this.healthBar.setPosition(this.x - 25 + (this.healthBar.width / 2), this.y - 55);
+        this.healthBarBg.setPosition(this.x, this.y - 80);
+        this.healthBar.setPosition(this.x - 25 + (this.healthBar.width / 2), this.y - 80);
     }
 
     destroy(fromScene?: boolean) {
