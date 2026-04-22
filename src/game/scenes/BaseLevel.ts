@@ -100,7 +100,6 @@ export abstract class BaseLevel extends Scene {
         EventBus.on('enemy-killed', this.onEnemyKilled, this);
         EventBus.on('enemy-attack', this.onEnemyAttack, this);
         EventBus.on('skill-unlocked', this.onSkillUnlocked, this);
-        EventBus.on('show-ally-dialog', this.onAllyDialog, this);
 
         // Launch HUD
         this.scene.launch('HUD');
@@ -187,15 +186,6 @@ export abstract class BaseLevel extends Scene {
         // HUD will update via its own listener
     }
 
-    private onAllyDialog(data: { partLabel: string }) {
-        this.player.playPickup();
-        // Brief delay so pickup animation is visible, then show dialog
-        this.time.delayedCall(800, () => {
-            this.scene.launch('AllyDialog', { ...data, parentScene: this.levelKey });
-            this.scene.pause();
-        });
-    }
-
     private goToNextLevel() {
         if (this.transitioning) return;
         this.transitioning = true;
@@ -205,7 +195,6 @@ export abstract class BaseLevel extends Scene {
         EventBus.off('enemy-killed', this.onEnemyKilled, this);
         EventBus.off('enemy-attack', this.onEnemyAttack, this);
         EventBus.off('skill-unlocked', this.onSkillUnlocked, this);
-        EventBus.off('show-ally-dialog', this.onAllyDialog, this);
         // Tell HUD to clean up its own listeners before we stop it
         EventBus.emit('hud-shutdown');
         this.scene.stop('HUD');
@@ -221,7 +210,6 @@ export abstract class BaseLevel extends Scene {
         EventBus.off('enemy-killed', this.onEnemyKilled, this);
         EventBus.off('enemy-attack', this.onEnemyAttack, this);
         EventBus.off('skill-unlocked', this.onSkillUnlocked, this);
-        EventBus.off('show-ally-dialog', this.onAllyDialog, this);
     }
 }
 

@@ -3,7 +3,7 @@ import { EventBus } from '../EventBus';
 import { GameState } from '../systems/GameState';
 
 const ALLY_SCALE = 0.5;
-const WAKE_DISTANCE = 200;   // px — switch from sleep to idle
+const WAKE_DISTANCE = 200;
 const INTERACT_DISTANCE = 100;
 
 export class Ally {
@@ -14,6 +14,8 @@ export class Ally {
     private playerRef: Phaser.Physics.Arcade.Sprite;
     private partLabel: string;
     private keyE: Phaser.Input.Keyboard.Key;
+    private scene: Phaser.Scene;
+    private parentSceneKey: string;
 
     constructor(
         scene: Phaser.Scene,
@@ -22,6 +24,8 @@ export class Ally {
         player: Phaser.Physics.Arcade.Sprite,
         partLabel: string
     ) {
+        this.scene = scene;
+        this.parentSceneKey = scene.scene.key;
         this.playerRef = player;
         this.partLabel = partLabel;
 
@@ -50,7 +54,6 @@ export class Ally {
             this.playerRef.x, this.playerRef.y
         );
 
-        // Wake up when hero approaches
         if (!this.awake && dist < WAKE_DISTANCE) {
             this.awake = true;
             this.sprite.play('anim_ally_idle');
@@ -72,7 +75,13 @@ export class Ally {
         this.interacted = true;
         GameState.addSparePart();
         this.prompt.setVisible(false);
-        EventBus.emit('show-ally-dialog', { partLabel: this.partLabel });
+
+        // Launch dialog directly — no EventBus relay needed
+        this.scene.scene.launch('AllyDialog', {
+            partLabel: this.partLabel,
+            parentScene: this.parentSceneKey,
+        });
+        this.scene.scene.pause();
     }
 
     getSprite(): Phaser.Physics.Arcade.Sprite {
