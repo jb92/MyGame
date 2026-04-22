@@ -181,6 +181,13 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
             slam: 'hero_duck',
         };
         this.setTexture(texMap[s]);
+        // Squish Y-scale on duck so the character visually shrinks from the top
+        // (origin 0.5,1 keeps feet at ground level — only the head/body moves down)
+        if (s === 'duck' || s === 'slam') {
+            this.setScale(0.18, 0.12);
+        } else {
+            this.setScale(0.18, 0.18);
+        }
     }
 
     private updateHitbox() {
