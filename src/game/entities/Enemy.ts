@@ -10,6 +10,8 @@ const ATTACK_RANGE = 60;
 const ATTACK_COOLDOWN = 1200;
 const STUN_DURATION = 400;
 
+const ENEMY_SCALE = 0.5;
+
 export class Enemy extends Phaser.Physics.Arcade.Sprite {
     private state: EnemyState = 'patrol';
     private facingRight: boolean;
@@ -31,7 +33,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
         hp = 60,
         dmg = 15
     ) {
-        super(scene, x, y, 'enemy_idle');
+        super(scene, x, y, 'gman_walk');
         this.target = target;
         this.maxHp = hp;
         this.hp = hp;
@@ -43,17 +45,40 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
 
         const body = this.body as Phaser.Physics.Arcade.Body;
         body.setGravityY(400);
-        // Placeholder 60×70, visible feet at texture y=65 (4px padding below).
-        // With origin(0.5,1): feet world = sprite.y + 1*(65-70) = sprite.y - 5
-        // body.bottom should = sprite.y - 5 → offset.y + sourceH = 65
-        body.setSize(44, 62);
-        body.setOffset(8, 3);
-        this.setScale(1.0);
+        // 256×256 frames at scale 0.5. Walk feet at texture y=234.
+        // body.bottom = sprite.y + scale*(offset.y - 256 + sourceH)
+        // For visible feet at surface: offset.y + sourceH = 234
+        body.setSize(100, 160);
+        body.setOffset(78, 74);
+        this.setScale(ENEMY_SCALE);
         this.setOrigin(0.5, 1);
         this.setDepth(9);
 
         this.healthBarBg = scene.add.rectangle(x, y - 80, 50, 6, 0x333333).setDepth(20);
         this.healthBar = scene.add.rectangle(x, y - 80, 50, 6, 0xff2222).setDepth(21);
+
+        this.createAnimations();
+        this.play('anim_gman_walk');
+    }
+
+    private createAnimations() {
+        const anims = this.scene.anims;
+        if (!anims.exists('anim_gman_walk')) {
+            anims.create({
+                key: 'anim_gman_walk',
+                frames: anims.generateFrameNumbers('gman_walk', { start: 0, end: 24 }),
+                frameRate: 12,
+                repeat: -1,
+            });
+        }
+        if (!anims.exists('anim_gman_attack')) {
+            anims.create({
+                key: 'anim_gman_attack',
+                frames: anims.generateFrameNumbers('gman_attack', { start: 0, end: 24 }),
+                frameRate: 16,
+                repeat: -1,
+            });
+        }
     }
 
     update(delta: number) {
@@ -113,14 +138,15 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
     private transitionTo(next: EnemyState) {
         if (this.state === next) return;
         this.state = next;
-        const texMap: Record<EnemyState, string> = {
-            patrol: 'enemy_idle',
-            chase: 'enemy_walk',
-            attack: 'enemy_attack',
-            stun: 'enemy_idle',
-            dead: 'enemy_idle',
+
+        const animMap: Record<EnemyState, string> = {
+            patrol: 'anim_gman_walk',
+            chase:  'anim_gman_walk',
+            attack: 'anim_gman_attack',
+            stun:   'anim_gman_walk',
+            dead:   'anim_gman_walk',
         };
-        this.setTexture(texMap[next]);
+        this.play(animMap[next], true);
     }
 
     hit(damage: number) {
@@ -164,4 +190,3 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
         super.destroy(fromScene);
     }
 }
-

@@ -81,7 +81,7 @@ export class Level1_City extends BaseLevel {
         gfx.fillStyle(0x0d0d1e, 1);
         gfx.fillRect(0, 0, 3200, 480);
 
-        const buildings = [
+        const buildings: number[][] = [
             [0, 200, 120, 550], [150, 280, 90, 470], [280, 150, 140, 600],
             [460, 220, 100, 530], [600, 180, 120, 570], [760, 250, 80, 500],
             [880, 130, 150, 620], [1080, 200, 110, 550], [1240, 170, 130, 580],
@@ -93,12 +93,18 @@ export class Level1_City extends BaseLevel {
         gfx.fillStyle(0x111122, 1);
         buildings.forEach(([x, y, w, h]) => gfx.fillRect(x, y, w, h));
 
+        // Draw windows only inside each building
         gfx.fillStyle(0xffff88, 0.6);
-        for (let bx = 0; bx < 3200; bx += 30) {
-            for (let by = 200; by < 700; by += 28) {
-                if (Math.random() > 0.65) gfx.fillRect(bx + 4, by + 4, 8, 10);
+        buildings.forEach(([bx, by, bw, bh]) => {
+            const padX = 8, padY = 12, winW = 8, winH = 10, gapX = 20, gapY = 22;
+            for (let wx = bx + padX; wx + winW < bx + bw - padX; wx += gapX) {
+                for (let wy = by + padY; wy + winH < by + bh - padY; wy += gapY) {
+                    if (Math.random() > 0.4) {
+                        gfx.fillRect(wx, wy, winW, winH);
+                    }
+                }
             }
-        }
+        });
 
         gfx.fillStyle(0xff0066, 0.8);
         gfx.fillRect(430, 395, 40, 10);

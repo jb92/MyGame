@@ -39,6 +39,10 @@ export class Preloader extends Scene
         this.load.spritesheet('hero_victory', 'hero/Martin-victory.png', frameConfig);
         this.load.spritesheet('hero_pickup',  'hero/Martin-pickup.png',  frameConfig);
 
+        // G-man enemy sprites (1280×1280, 5×5 grid)
+        this.load.spritesheet('gman_walk',   'enemies/G-man-walk.png',   frameConfig);
+        this.load.spritesheet('gman_attack', 'enemies/G-man-attack.png', frameConfig);
+
         // Starship: 1024×1024, 3 rows — frame 0=repaired, frame 2=damaged
         this.load.spritesheet('starship', 'ship/Starship-nobg.png', { frameWidth: 1024, frameHeight: 341 });
 
@@ -55,25 +59,7 @@ export class Preloader extends Scene
     }
 
     private generatePlaceholders() {
-        // Enemy: dark suited G-man silhouette
-        const enemyGfx = this.make.graphics({ x: 0, y: 0 });
-        enemyGfx.fillStyle(0x222233, 1);
-        enemyGfx.fillRect(15, 0, 30, 35);   // body
-        enemyGfx.fillStyle(0x111122, 1);
-        enemyGfx.fillRect(10, -20, 40, 25); // head
-        enemyGfx.fillStyle(0xcccccc, 1);
-        enemyGfx.fillRect(18, -14, 24, 16); // face
-        enemyGfx.fillStyle(0x333344, 1);
-        enemyGfx.fillRect(8, 35, 14, 30);   // left leg
-        enemyGfx.fillRect(38, 35, 14, 30);  // right leg
-        enemyGfx.fillRect(0, 2, 12, 25);    // left arm
-        enemyGfx.fillRect(48, 2, 12, 25);   // right arm
-        enemyGfx.generateTexture('enemy_idle', 60, 70);
-        enemyGfx.generateTexture('enemy_walk', 60, 70);
-        enemyGfx.generateTexture('enemy_attack', 60, 70);
-        enemyGfx.destroy();
-
-        // Ally: friendly NPC
+        // Ally: friendly NPC (placeholder)
         const allyGfx = this.make.graphics({ x: 0, y: 0 });
         allyGfx.fillStyle(0x006633, 1);
         allyGfx.fillRect(10, 10, 30, 40);   // body
