@@ -4,7 +4,7 @@ import { EventBus } from '../EventBus';
 
 const MOVE_SPEED = 220;
 const JUMP_VELOCITY = -520;
-const DASH_DISTANCE = 280;
+const DASH_DISTANCE = 500;
 const DASH_COOLDOWN = 800;
 const PUNCH_COOLDOWN = 400;
 const COMBO_WINDOW = 600;
@@ -183,7 +183,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
             body.setVelocityX(dir * DASH_DISTANCE * 5);
             this.dashCooldown = DASH_COOLDOWN;
             this.setState('dash');
-            this.scene.time.delayedCall(150, () => {
+            this.scene.time.delayedCall(300, () => {
                 if (this.state === 'dash') this.setState('idle');
             });
         }
