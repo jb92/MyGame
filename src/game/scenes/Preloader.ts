@@ -56,6 +56,9 @@ export class Preloader extends Scene
         // City platforms: extracted individual frames
         this.load.spritesheet('city_plat_wide', 'platforms/city-platform-wide.png', { frameWidth: 156, frameHeight: 36 });
         this.load.spritesheet('city_plat_narrow', 'platforms/city-platform-narrow.png', { frameWidth: 69, frameHeight: 36 });
+
+        // Forest platform (single image 1024×1024)
+        this.load.image('forest_plat', 'platforms/forest-platform.png');
     }
 
     create ()
