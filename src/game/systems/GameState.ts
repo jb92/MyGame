@@ -1,5 +1,5 @@
 /** Skill identifiers */
-export const enum Skill {
+export enum Skill {
     DASH = 'DASH',
     COMBO_PUNCH = 'COMBO_PUNCH',
     GROUND_SLAM = 'GROUND_SLAM',
