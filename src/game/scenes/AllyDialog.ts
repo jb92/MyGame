@@ -10,6 +10,7 @@ export class AllyDialog extends Scene {
     constructor() { super('AllyDialog'); }
 
     create(data: AllyDialogData) {
+        console.log('[AllyDialog] create() called with data:', data);
         const W = this.scale.width;
         const H = this.scale.height;
 
