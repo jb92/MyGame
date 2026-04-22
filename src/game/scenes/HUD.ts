@@ -10,10 +10,13 @@ export class HUD extends Scene {
     private partsText!: Phaser.GameObjects.Text;
     private skillIcons: Phaser.GameObjects.Rectangle[] = [];
     private skillLabels: Phaser.GameObjects.Text[] = [];
+    private alive = false;
 
     constructor() { super({ key: 'HUD', active: false }); }
 
     create() {
+        this.alive = true;
+
         // Health bar
         this.add.rectangle(110, 24, 204, 20, 0x000000).setOrigin(0, 0.5).setScrollFactor(0).setDepth(100);
         this.healthBarBg = this.add.rectangle(112, 24, 200, 16, 0x550000).setOrigin(0, 0.5).setScrollFactor(0).setDepth(101);
@@ -43,6 +46,11 @@ export class HUD extends Scene {
         EventBus.on('player-damaged', this.updateHealth, this);
         EventBus.on('skill-unlocked', this.updateSkills, this);
         EventBus.on('spare-part-collected', this.updateParts, this);
+        // Explicit pre-shutdown hook so the level can clean us up before scene.stop()
+        EventBus.on('hud-shutdown', this.shutdown, this);
+
+        // Phaser scene shutdown also calls our cleanup
+        this.events.once('shutdown', this.shutdown, this);
 
         this.updateHealth(GameState.playerHealth);
         this.updateSkills();
@@ -50,12 +58,14 @@ export class HUD extends Scene {
     }
 
     private updateHealth(hp: number) {
+        if (!this.alive) return;
         const ratio = hp / GameState.maxHealth;
         this.healthBar.width = 200 * ratio;
         this.healthText.setText(`${hp} / ${GameState.maxHealth}`);
     }
 
     private updateSkills() {
+        if (!this.alive) return;
         const skillKeys = [Skill.DASH, Skill.COMBO_PUNCH, Skill.GROUND_SLAM];
         skillKeys.forEach((k, i) => {
             const unlocked = GameState.hasSkill(k);
@@ -65,13 +75,17 @@ export class HUD extends Scene {
     }
 
     private updateParts() {
+        if (!this.alive) return;
         this.partsText.setText(`🔧 ${GameState.spareParts} / ${GameState.totalSpareParts}`);
     }
 
     shutdown() {
+        if (!this.alive) return;
+        this.alive = false;
         EventBus.off('player-damaged', this.updateHealth, this);
         EventBus.off('skill-unlocked', this.updateSkills, this);
         EventBus.off('spare-part-collected', this.updateParts, this);
+        EventBus.off('hud-shutdown', this.shutdown, this);
     }
 }
 

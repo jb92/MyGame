@@ -33,6 +33,7 @@ export abstract class BaseLevel extends Scene {
     protected exitZone!: Phaser.GameObjects.Rectangle;
     protected config!: LevelConfig;
     private levelKey: string;
+    private transitioning = false;   // guard against exit zone firing every frame
 
     constructor(key: string) {
         super(key);
@@ -44,6 +45,7 @@ export abstract class BaseLevel extends Scene {
     abstract placeActors(): void;
 
     create() {
+        this.transitioning = false;
         this.config = this.getLevelConfig();
         this.cameras.main.setBackgroundColor(this.config.bgColor);
 
@@ -187,12 +189,19 @@ export abstract class BaseLevel extends Scene {
     }
 
     private goToNextLevel() {
+        if (this.transitioning) return;
+        this.transitioning = true;
+
+        // Remove all EventBus listeners before any scene stops
         EventBus.off('player-dead', this.onPlayerDead, this);
         EventBus.off('enemy-killed', this.onEnemyKilled, this);
         EventBus.off('enemy-attack', this.onEnemyAttack, this);
         EventBus.off('skill-unlocked', this.onSkillUnlocked, this);
         EventBus.off('show-ally-dialog', this.onAllyDialog, this);
+        // Tell HUD to clean up its own listeners before we stop it
+        EventBus.emit('hud-shutdown');
         this.scene.stop('HUD');
+
         GameState.currentLevel++;
         this.cameras.main.fade(500, 0, 0, 0, false, (_cam: any, progress: number) => {
             if (progress === 1) this.scene.start(this.config.nextScene);
