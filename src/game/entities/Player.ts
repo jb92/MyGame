@@ -263,7 +263,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     }
 
     /** Play the pickup animation (one-shot), locks input briefly. */
-    playPickup() {
+    playPickup(onComplete?: () => void) {
         this.inputLocked = true;
         const body = this.body as Phaser.Physics.Arcade.Body;
         if (body) body.setVelocityX(0);
@@ -271,6 +271,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         this.once(Phaser.Animations.Events.ANIMATION_COMPLETE, () => {
             this.inputLocked = false;
             this.setState('idle');
+            if (onComplete) onComplete();
         });
     }
 

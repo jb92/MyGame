@@ -78,8 +78,12 @@ export abstract class BaseLevel extends Scene {
                 if (this.skillOrb) {
                     const cfg = this.skillOrb.getConfig();
                     this.skillOrb.collect();
-                    this.scene.pause();
-                    this.scene.launch('SkillUnlock', { ...cfg, parent: this.levelKey });
+                    this.skillOrb = undefined;
+                    // Play pickup animation, then show unlock screen
+                    this.player.playPickup(() => {
+                        this.scene.pause();
+                        this.scene.launch('SkillUnlock', { ...cfg, parent: this.levelKey });
+                    });
                 }
             });
         }

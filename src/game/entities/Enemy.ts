@@ -54,8 +54,8 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
         this.setOrigin(0.5, 1);
         this.setDepth(9);
 
-        this.healthBarBg = scene.add.rectangle(-100, -100, 50, 6, 0x333333).setDepth(20);
-        this.healthBar = scene.add.rectangle(-100, -100, 50, 6, 0xff2222).setDepth(21);
+        this.healthBarBg = scene.add.rectangle(-100, -100, 50, 6, 0x333333).setDepth(50).setVisible(false);
+        this.healthBar = scene.add.rectangle(-100, -100, 50, 6, 0xff2222).setDepth(51).setVisible(false);
 
         this.createAnimations();
         this.play('anim_gman_walk');
@@ -156,6 +156,9 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
         this.transitionTo('stun');
         this.setTint(0xff8888);
         this.scene.time.delayedCall(200, () => this.clearTint());
+        // Show health bar on first hit
+        this.healthBarBg.setVisible(true);
+        this.healthBar.setVisible(true);
 
         if (this.hp <= 0) {
             this.die();
