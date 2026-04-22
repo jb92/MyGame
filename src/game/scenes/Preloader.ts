@@ -29,10 +29,15 @@ export class Preloader extends Scene
     preload ()
     {
         this.load.setPath('assets');
-        this.load.image('hero_idle',  'hero/idle.png');
-        this.load.image('hero_run',   'hero/run.png');
-        this.load.image('hero_duck',  'hero/duck.png');
-        this.load.image('hero_punch', 'hero/punch.png');
+        const frameConfig = { frameWidth: 256, frameHeight: 256 };
+        this.load.spritesheet('hero_idle',    'hero/Martin-idle.png',    frameConfig);
+        this.load.spritesheet('hero_walk',    'hero/Martin-walk.png',    frameConfig);
+        this.load.spritesheet('hero_run',     'hero/Martin-run.png',     frameConfig);
+        this.load.spritesheet('hero_jump',    'hero/Martin-jump.png',    frameConfig);
+        this.load.spritesheet('hero_punch',   'hero/Martin-punch.png',   frameConfig);
+        this.load.spritesheet('hero_dash',    'hero/Martin-dash.png',    frameConfig);
+        this.load.spritesheet('hero_victory', 'hero/Martin-victory.png', frameConfig);
+        this.load.spritesheet('hero_pickup',  'hero/Martin-pickup.png',  frameConfig);
     }
 
     create ()

@@ -10,7 +10,16 @@ const PUNCH_COOLDOWN = 400;
 const COMBO_WINDOW = 600;
 const SLAM_VELOCITY = 600;
 
-export type PlayerState = 'idle' | 'run' | 'jump' | 'punch' | 'dash' | 'slam';
+// Time in ms a move key must be held before switching from walk to run
+const WALK_TO_RUN_THRESHOLD = 2000;
+
+// 256×256 frames at 0.36 ≈ 92px display (matches old 512×0.18)
+const HERO_SCALE = 0.36;
+
+export type PlayerState =
+    | 'idle' | 'walk' | 'run' | 'jump'
+    | 'punch' | 'dash' | 'slam'
+    | 'victory' | 'pickup';
 
 export class Player extends Phaser.Physics.Arcade.Sprite {
     private cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
@@ -27,6 +36,12 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     private slamming = false;
     private invincibleTimer = 0;
 
+    // Walk/run duration tracking
+    private moveKeyHoldTime = 0;
+
+    // Locks input during victory / pickup one-shot anims
+    private inputLocked = false;
+
     // Hitbox for melee attack
     punchHitbox!: Phaser.GameObjects.Rectangle;
 
@@ -38,14 +53,9 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         const body = this.body as Phaser.Physics.Arcade.Body;
         body.setGravityY(300);
         body.setCollideWorldBounds(true);
-        // Scale 0.18 → sprite displayed at 512*0.18 ≈ 92px.
-        // Character fills roughly the center 60% of the cell.
-        // Use display-size body (no setSize) so Phaser auto-sizes to 92×92,
-        // then pull the bottom up slightly via offset to match the feet.
-        // offset.y = 10 keeps feet near the bottom of the 92px sprite.
         body.setOffset(10, 10);
-        this.setScale(0.18);
-        this.setOrigin(0.5, 1);   // anchor at feet — bottom of sprite = player y
+        this.setScale(HERO_SCALE);
+        this.setOrigin(0.5, 1);
         this.setDepth(10);
 
         this.cursors = scene.input.keyboard!.createCursorKeys();
@@ -55,10 +65,41 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
 
         this.punchHitbox = scene.add.rectangle(x, y, 50, 40, 0xff6600, 0)
             .setDepth(11);
+
+        this.createAnimations();
+        this.play('anim_idle');
+    }
+
+    /** Register all hero sprite-sheet animations once. */
+    private createAnimations() {
+        const anims = this.scene.anims;
+
+        const defs: { key: string; sheet: string; end: number; rate: number; repeat: number }[] = [
+            { key: 'anim_idle',    sheet: 'hero_idle',    end: 24, rate: 10, repeat: -1 },
+            { key: 'anim_walk',    sheet: 'hero_walk',    end: 24, rate: 12, repeat: -1 },
+            { key: 'anim_run',     sheet: 'hero_run',     end: 24, rate: 14, repeat: -1 },
+            { key: 'anim_jump',    sheet: 'hero_jump',    end: 24, rate: 12, repeat:  0 },
+            { key: 'anim_punch',   sheet: 'hero_punch',   end: 24, rate: 20, repeat:  0 },
+            { key: 'anim_dash',    sheet: 'hero_dash',    end: 24, rate: 20, repeat:  0 },
+            { key: 'anim_victory', sheet: 'hero_victory', end: 24, rate: 10, repeat:  0 },
+            { key: 'anim_pickup',  sheet: 'hero_pickup',  end: 24, rate: 14, repeat:  0 },
+        ];
+
+        for (const d of defs) {
+            if (!anims.exists(d.key)) {
+                anims.create({
+                    key: d.key,
+                    frames: anims.generateFrameNumbers(d.sheet, { start: 0, end: d.end }),
+                    frameRate: d.rate,
+                    repeat: d.repeat,
+                });
+            }
+        }
     }
 
     update(delta: number) {
         const body = this.body as Phaser.Physics.Arcade.Body;
+        if (!body) return;
         const onGround = body.blocked.down;
 
         this.dashCooldown = Math.max(0, this.dashCooldown - delta);
@@ -67,6 +108,12 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         this.invincibleTimer = Math.max(0, this.invincibleTimer - delta);
 
         if (this.comboTimer <= 0) this.comboCount = 0;
+
+        // Block all input during one-shot animations (victory / pickup)
+        if (this.inputLocked) {
+            this.updateHitbox();
+            return;
+        }
 
         // Block movement during slam landing
         if (this.slamming) {
@@ -92,6 +139,13 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
             moving = true;
         } else {
             body.setVelocityX(0);
+        }
+
+        // Track how long a move key is held
+        if (moving) {
+            this.moveKeyHoldTime += delta;
+        } else {
+            this.moveKeyHoldTime = 0;
         }
 
         // --- Jump ---
@@ -137,7 +191,6 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
                 this.comboCount = 0;
             }
             this.setState('punch');
-            // Briefly show hitbox
             this.punchHitbox.setAlpha(0);
             EventBus.emit('player-punch', { combo: this.comboCount });
             this.scene.time.delayedCall(200, () => {
@@ -150,7 +203,12 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
             if (!onGround) {
                 this.setState('jump');
             } else if (moving) {
-                this.setState('run');
+                // Walk if held < threshold, run if held longer
+                if (this.moveKeyHoldTime < WALK_TO_RUN_THRESHOLD) {
+                    this.setState('walk');
+                } else {
+                    this.setState('run');
+                }
             } else {
                 this.setState('idle');
             }
@@ -162,21 +220,50 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     private setState(s: PlayerState) {
         if (this.state === s) return;
         this.state = s;
-        const texMap: Record<PlayerState, string> = {
-            idle: 'hero_idle',
-            run: 'hero_run',
-            jump: 'hero_run',
-            punch: 'hero_punch',
-            dash: 'hero_run',
-            slam: 'hero_duck',
+
+        const animMap: Record<PlayerState, string> = {
+            idle:    'anim_idle',
+            walk:    'anim_walk',
+            run:     'anim_run',
+            jump:    'anim_jump',
+            punch:   'anim_punch',
+            dash:    'anim_dash',
+            slam:    'anim_jump',   // reuse jump frames for slam
+            victory: 'anim_victory',
+            pickup:  'anim_pickup',
         };
-        this.setTexture(texMap[s]);
-        this.setScale(0.18, 0.18);
+
+        this.play(animMap[s], true);
+        this.setScale(HERO_SCALE);
         this.setOrigin(0.5, 1.0);
 
         const body = this.body as Phaser.Physics.Arcade.Body;
         if (!body) return;
         body.setOffset(10, 10);
+    }
+
+    /** Play the victory animation (one-shot), locks input, then calls cb. */
+    playVictory(onComplete?: () => void) {
+        this.inputLocked = true;
+        const body = this.body as Phaser.Physics.Arcade.Body;
+        if (body) body.setVelocity(0, 0);
+        this.setState('victory');
+        this.once(Phaser.Animations.Events.ANIMATION_COMPLETE, () => {
+            this.inputLocked = false;
+            if (onComplete) onComplete();
+        });
+    }
+
+    /** Play the pickup animation (one-shot), locks input briefly. */
+    playPickup() {
+        this.inputLocked = true;
+        const body = this.body as Phaser.Physics.Arcade.Body;
+        if (body) body.setVelocityX(0);
+        this.setState('pickup');
+        this.once(Phaser.Animations.Events.ANIMATION_COMPLETE, () => {
+            this.inputLocked = false;
+            this.setState('idle');
+        });
     }
 
     private updateHitbox() {

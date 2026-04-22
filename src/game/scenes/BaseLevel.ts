@@ -138,7 +138,7 @@ export abstract class BaseLevel extends Scene {
             this.exitZone.x, this.exitZone.y
         );
         if (distToExit < 50) {
-            this.goToNextLevel();
+            this.player.playVictory(() => this.goToNextLevel());
         }
     }
 
@@ -185,6 +185,7 @@ export abstract class BaseLevel extends Scene {
     }
 
     private onAllyDialog(data: { partLabel: string }) {
+        this.player.playPickup();
         this.scene.pause();
         this.scene.launch('AllyDialog', { ...data, parentScene: this.levelKey });
     }
