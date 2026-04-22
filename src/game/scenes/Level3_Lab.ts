@@ -62,7 +62,7 @@ export class Level3_Lab extends BaseLevel {
             this.enemies.push(e);
         });
 
-        this.ally = new Ally(this, 2850, 751, this.player, this.config.allyPartLabel);
+        this.ally = new Ally(this, 2850, 772, this.player, this.config.allyPartLabel);
         this.skillOrb = new SkillOrb(this, 2610, 180, Skill.GROUND_SLAM);
 
         // Starship object near the exit

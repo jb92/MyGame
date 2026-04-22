@@ -25,12 +25,15 @@ export class AllyDialog extends Scene {
             fontSize: '11px', color: '#00cc88',
         }).setDepth(202);
 
-        const dialog = `"Hey! I found a piece of your ship — the ${data.partLabel}!\n` +
-            `Take it, and good luck getting out of here. Those G-men are everywhere!"`;
+        const dialog = `"Hey there, friend! I've been waiting for you.\n` +
+            `I found a ${data.partLabel} from your crashed starship.\n` +
+            `Here, take it — you'll need it to repair your ship and get off this planet!\n` +
+            `Be careful out there, those G-men won't stop hunting you."`;
 
         this.add.text(W / 2 - 210, H - 160, dialog, {
             fontSize: '13px', color: '#eeffee',
             wordWrap: { width: 460 },
+            lineSpacing: 4,
         }).setDepth(202);
 
         this.add.text(W / 2, H - 90, '[ Press E or ENTER ]', {
