@@ -287,13 +287,9 @@ export class IntroCutscene extends Scene {
         });
     }
 
-    /** Launch Level 1 on top, then stop cutscene — no black flash. */
+    /** Transition to Level 1 — must use scene.start so Level 1 is the primary scene
+     *  (overlay scenes like HUD, SkillUnlock, AllyDialog need to render on top). */
     private goToLevel1() {
-        this.scene.launch('Level1_City');
-        this.scene.bringToTop('Level1_City');
-        // Give Level 1 a frame to render, then remove cutscene
-        this.time.delayedCall(100, () => {
-            this.scene.stop('IntroCutscene');
-        });
+        this.scene.start('Level1_City');
     }
 }
