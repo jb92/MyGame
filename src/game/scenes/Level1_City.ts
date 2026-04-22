@@ -10,6 +10,8 @@ import { Skill } from '../systems/GameState';
  * Skill unlocked: DASH
  */
 export class Level1_City extends BaseLevel {
+    private platSprites: Phaser.GameObjects.Sprite[] = [];
+
     constructor() { super('Level1_City'); }
 
     getLevelConfig(): LevelConfig {
@@ -27,55 +29,84 @@ export class Level1_City extends BaseLevel {
     }
 
     buildPlatforms() {
+        // Create city platform animation (frames 0-7, first row of sheet)
+        if (!this.anims.exists('city_plat_anim')) {
+            this.anims.create({
+                key: 'city_plat_anim',
+                frames: this.anims.generateFrameNumbers('city_platform', { start: 0, end: 7 }),
+                frameRate: 4,
+                repeat: -1,
+            });
+        }
+
         this.makeGround();
-        // City platform layout
-        this.makePlatform(200, 620, 180);
-        this.makePlatform(500, 560, 160);
-        this.makePlatform(780, 500, 200);
-        this.makePlatform(1050, 580, 140);
-        this.makePlatform(1300, 520, 200);
-        this.makePlatform(1580, 600, 160);
-        this.makePlatform(1800, 540, 220);
-        this.makePlatform(2100, 480, 180);
-        this.makePlatform(2380, 560, 200);
-        this.makePlatform(2650, 620, 160);
-        this.makePlatform(2900, 560, 180);
-        // Buildings (tall platforms as walls/edges)
+
+        // City platforms — use animated sprite overlays
+        this.makeCityPlatform(200, 620, 180);
+        this.makeCityPlatform(500, 560, 160);
+        this.makeCityPlatform(780, 500, 200);
+        this.makeCityPlatform(1050, 580, 140);
+        this.makeCityPlatform(1300, 520, 200);
+        this.makeCityPlatform(1580, 600, 160);
+        this.makeCityPlatform(1800, 540, 220);
+        this.makeCityPlatform(2100, 480, 180);
+        this.makeCityPlatform(2380, 560, 200);
+        this.makeCityPlatform(2650, 620, 160);
+        this.makeCityPlatform(2900, 560, 180);
+
+        // Buildings (tall platforms as walls/edges) — keep as solid blocks
         this.makePlatform(400, 400, 30, 320);
         this.makePlatform(900, 360, 30, 360);
         this.makePlatform(1500, 420, 30, 300);
         this.makePlatform(2200, 380, 30, 340);
         this.makePlatform(2800, 400, 30, 320);
+
         // Rooftops
-        this.makePlatform(380, 400, 200, 16);
-        this.makePlatform(880, 360, 200, 16);
-        this.makePlatform(1480, 420, 200, 16);
+        this.makeCityPlatform(380, 400, 200, 16);
+        this.makeCityPlatform(880, 360, 200, 16);
+        this.makeCityPlatform(1480, 420, 200, 16);
+    }
+
+    /** Create a platform with an animated city-tile sprite overlay. */
+    private makeCityPlatform(x: number, y: number, w: number, h = 24) {
+        // Invisible physics body for collision
+        const gfx = this.add.graphics();
+        gfx.fillStyle(0x000000, 0);
+        gfx.fillRect(0, 0, w, h);
+        const key = `cplat_${x}_${y}`;
+        gfx.generateTexture(key, w, h);
+        gfx.destroy();
+        const plat = this.platforms.create(x + w / 2, y, key);
+        plat.setAlpha(0).refreshBody();
+
+        // Animated visual overlay
+        const scale = w / 160;
+        const sprite = this.add.sprite(x + w / 2, y - h / 2, 'city_platform', 0);
+        sprite.setScale(scale, scale * 0.35);  // compress height for a flat platform look
+        sprite.setOrigin(0.5, 0.1);
+        sprite.setDepth(2);
+        sprite.play({ key: 'city_plat_anim', startFrame: Math.floor(Math.random() * 8) });
+        this.platSprites.push(sprite);
     }
 
     placeActors() {
-        // Enemies spread across the level
         const positions = [350, 680, 1100, 1650, 2300];
         positions.forEach(x => {
             const e = new Enemy(this, x, 680, this.player, this.config.enemyHp, this.config.enemyDmg);
             this.enemies.push(e);
         });
 
-        // Ally (gives quantum engine core)
         this.ally = new Ally(this, 2500, 680, this.player, this.config.allyPartLabel);
-
-        // Skill orb: DASH — on a rooftop, hard to reach
         this.skillOrb = new SkillOrb(this, 1490, 360, Skill.DASH);
 
-        // Background city ambiance (simple colored rectangles)
         this.createCityBackdrop();
     }
 
     private createCityBackdrop() {
         const gfx = this.add.graphics().setDepth(0);
-        // Sky gradient effect
         gfx.fillStyle(0x0d0d1e, 1);
         gfx.fillRect(0, 0, 3200, 480);
-        // Buildings silhouettes
+
         const buildings = [
             [0, 200, 120, 550], [150, 280, 90, 470], [280, 150, 140, 600],
             [460, 220, 100, 530], [600, 180, 120, 570], [760, 250, 80, 500],
@@ -88,7 +119,6 @@ export class Level1_City extends BaseLevel {
         gfx.fillStyle(0x111122, 1);
         buildings.forEach(([x, y, w, h]) => gfx.fillRect(x, y, w, h));
 
-        // Windows
         gfx.fillStyle(0xffff88, 0.6);
         for (let bx = 0; bx < 3200; bx += 30) {
             for (let by = 200; by < 700; by += 28) {
@@ -96,7 +126,6 @@ export class Level1_City extends BaseLevel {
             }
         }
 
-        // Neon signs
         gfx.fillStyle(0xff0066, 0.8);
         gfx.fillRect(430, 395, 40, 10);
         gfx.fillStyle(0x00ffcc, 0.8);
