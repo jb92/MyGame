@@ -46,6 +46,13 @@ export class Preloader extends Scene
         // Starship: 1024×1024, 3 rows — frame 0=repaired, frame 2=damaged
         this.load.spritesheet('starship', 'ship/Starship-nobg.png', { frameWidth: 1024, frameHeight: 341 });
 
+        // Animated power orb (1280×1280, 5×5 grid)
+        this.load.spritesheet('power_orb', 'items/power-orb.png', frameConfig);
+
+        // Ally sprites (1280×1280, 5×5 grid)
+        this.load.spritesheet('ally_sleep', 'allies/ally-sleep.png', frameConfig);
+        this.load.spritesheet('ally_idle',  'allies/ally-idle.png',  frameConfig);
+
         // City platforms: extracted individual frames
         this.load.spritesheet('city_plat_wide', 'platforms/city-platform-wide.png', { frameWidth: 156, frameHeight: 36 });
         this.load.spritesheet('city_plat_narrow', 'platforms/city-platform-narrow.png', { frameWidth: 69, frameHeight: 36 });
@@ -53,24 +60,33 @@ export class Preloader extends Scene
 
     create ()
     {
-        // Generate placeholder textures for enemies and allies
-        this.generatePlaceholders();
+        // Create animations for shared spritesheets
+        this.createAllyAnimations();
+        this.createOrbAnimation();
         this.scene.start('MainMenu');
     }
 
-    private generatePlaceholders() {
-        // Ally: friendly NPC (placeholder)
-        const allyGfx = this.make.graphics({ x: 0, y: 0 });
-        allyGfx.fillStyle(0x006633, 1);
-        allyGfx.fillRect(10, 10, 30, 40);   // body
-        allyGfx.fillStyle(0xffcc99, 1);
-        allyGfx.fillCircle(25, 5, 18);       // head
-        allyGfx.fillStyle(0x005522, 1);
-        allyGfx.fillRect(0, 12, 10, 22);    // left arm
-        allyGfx.fillRect(40, 12, 10, 22);   // right arm
-        allyGfx.fillRect(10, 50, 12, 22);   // left leg
-        allyGfx.fillRect(28, 50, 12, 22);   // right leg
-        allyGfx.generateTexture('ally', 50, 75);
-        allyGfx.destroy();
+    private createAllyAnimations() {
+        this.anims.create({
+            key: 'anim_ally_sleep',
+            frames: this.anims.generateFrameNumbers('ally_sleep', { start: 0, end: 24 }),
+            frameRate: 8,
+            repeat: -1,
+        });
+        this.anims.create({
+            key: 'anim_ally_idle',
+            frames: this.anims.generateFrameNumbers('ally_idle', { start: 0, end: 24 }),
+            frameRate: 8,
+            repeat: -1,
+        });
+    }
+
+    private createOrbAnimation() {
+        this.anims.create({
+            key: 'anim_power_orb',
+            frames: this.anims.generateFrameNumbers('power_orb', { start: 0, end: 24 }),
+            frameRate: 12,
+            repeat: -1,
+        });
     }
 }

@@ -41,14 +41,9 @@ export class SkillOrb extends Phaser.Physics.Arcade.StaticGroup {
         super(scene.physics.world, scene);
         this.config = SKILL_CONFIGS[skill];
 
-        // Visual orb
-        const gfx = scene.add.graphics();
-        gfx.fillStyle(this.config.color, 1);
-        gfx.fillCircle(24, 24, 24);
-        gfx.generateTexture(`orb_${skill}`, 48, 48);
-        gfx.destroy();
-
-        this.orb = scene.physics.add.sprite(x, y, `orb_${skill}`).setDepth(12);
+        // Animated power orb sprite
+        this.orb = scene.physics.add.sprite(x, y, 'power_orb').setDepth(12).setScale(0.25);
+        this.orb.play('anim_power_orb');
         this.add(this.orb);
 
         this.label = scene.add.text(x, y - 36, this.config.label, {
