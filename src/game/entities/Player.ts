@@ -13,8 +13,8 @@ const SLAM_VELOCITY = 600;
 // Time in ms a move key must be held before switching from walk to run
 const WALK_TO_RUN_THRESHOLD = 2000;
 
-// 256×256 frames at 0.36 ≈ 92px display (matches old 512×0.18)
-const HERO_SCALE = 0.36;
+// 256×256 frames at 0.5 ≈ 128px display
+const HERO_SCALE = 0.5;
 
 export type PlayerState =
     | 'idle' | 'walk' | 'run' | 'jump'
