@@ -93,13 +93,15 @@ export class MainMenu extends Scene
 
     private startGame() {
         GameState.reset();
-        // Fade out UI elements, then switch directly to cutscene (no black fade)
+        // Fade out UI elements only
         this.tweens.add({
             targets: this.children.list.filter(c => (c as any).depth >= 10),
             alpha: 0,
             duration: 600,
             onComplete: () => {
-                this.scene.start('IntroCutscene');
+                // Launch cutscene ON TOP — menu stays visible as backdrop (no black flash)
+                this.scene.launch('IntroCutscene');
+                this.scene.bringToTop('IntroCutscene');
             },
         });
     }

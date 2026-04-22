@@ -23,7 +23,8 @@ export class IntroCutscene extends Scene {
         const W = this.scale.width;
         const H = this.scale.height;
 
-        // No fade — cutscene sky matches menu sky exactly
+        // Stop the menu after cutscene has rendered its first frame
+        this.time.delayedCall(50, () => this.scene.stop('MainMenu'));
 
         // Allow skipping with ENTER or SPACE
         const skipText = this.add.text(W - 20, H - 20, 'Press ENTER to skip', {
@@ -34,7 +35,7 @@ export class IntroCutscene extends Scene {
         const skipCutscene = () => {
             if (this.transitioning) return;
             this.transitioning = true;
-            this.scene.start('Level1_City');
+            this.goToLevel1();
         };
         this.input.keyboard!.on('keydown-ENTER', skipCutscene);
         this.input.keyboard!.on('keydown-SPACE', skipCutscene);
@@ -273,7 +274,7 @@ export class IntroCutscene extends Scene {
             });
         });
 
-        // Phase 6 (9.5–11s): Panda lands, direct transition to Level 1
+        // Phase 6 (9.5–11s): Panda lands, seamless transition to Level 1
         this.time.delayedCall(9800, () => {
             if (this.transitioning) return;
             panda.setTexture('hero_idle', 0);
@@ -281,8 +282,18 @@ export class IntroCutscene extends Scene {
             this.time.delayedCall(600, () => {
                 if (this.transitioning) return;
                 this.transitioning = true;
-                this.scene.start('Level1_City');
+                this.goToLevel1();
             });
+        });
+    }
+
+    /** Launch Level 1 on top, then stop cutscene — no black flash. */
+    private goToLevel1() {
+        this.scene.launch('Level1_City');
+        this.scene.bringToTop('Level1_City');
+        // Give Level 1 a frame to render, then remove cutscene
+        this.time.delayedCall(100, () => {
+            this.scene.stop('IntroCutscene');
         });
     }
 }
