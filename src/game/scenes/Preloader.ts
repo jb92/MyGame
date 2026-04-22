@@ -9,39 +9,70 @@ export class Preloader extends Scene
 
     init ()
     {
-        //  We loaded this image in our Boot Scene, so we can display it here
-        this.add.image(512, 384, 'background');
+        const W = this.scale.width;
+        const H = this.scale.height;
 
-        //  A simple progress bar. This is the outline of the bar.
-        this.add.rectangle(512, 384, 468, 32).setStrokeStyle(1, 0xffffff);
+        this.add.rectangle(W / 2, H / 2, W, H, 0x000022);
+        this.add.text(W / 2, H / 2 - 60, '🐼 ALIEN PANDA', {
+            fontSize: '36px', color: '#ffffff',
+            stroke: '#001166', strokeThickness: 6,
+        }).setOrigin(0.5);
 
-        //  This is the progress bar itself. It will increase in size from the left based on the % of progress.
-        const bar = this.add.rectangle(512-230, 384, 4, 28, 0xffffff);
+        this.add.rectangle(W / 2, H / 2, 468, 32).setStrokeStyle(1, 0xffffff);
+        const bar = this.add.rectangle(W / 2 - 230, H / 2, 4, 28, 0x4488ff);
 
-        //  Use the 'progress' event emitted by the LoaderPlugin to update the loading bar
         this.load.on('progress', (progress: number) => {
-
-            //  Update the progress bar (our bar is 464px wide, so 100% = 464px)
             bar.width = 4 + (460 * progress);
-
         });
     }
 
     preload ()
     {
-        //  Load the assets for the game - Replace with your own assets
         this.load.setPath('assets');
-
-        this.load.image('logo', 'logo.png');
-        this.load.image('star', 'star.png');
+        this.load.image('hero_idle',  'hero/idle.png');
+        this.load.image('hero_run',   'hero/run.png');
+        this.load.image('hero_duck',  'hero/duck.png');
+        this.load.image('hero_punch', 'hero/punch.png');
     }
 
     create ()
     {
-        //  When all the assets have loaded, it's often worth creating global objects here that the rest of the game can use.
-        //  For example, you can define global animations here, so we can use them in other scenes.
-
-        //  Move to the MainMenu. You could also swap this for a Scene Transition, such as a camera fade.
+        // Generate placeholder textures for enemies and allies
+        this.generatePlaceholders();
         this.scene.start('MainMenu');
+    }
+
+    private generatePlaceholders() {
+        // Enemy: dark suited G-man silhouette
+        const enemyGfx = this.make.graphics({ x: 0, y: 0 });
+        enemyGfx.fillStyle(0x222233, 1);
+        enemyGfx.fillRect(15, 0, 30, 35);   // body
+        enemyGfx.fillStyle(0x111122, 1);
+        enemyGfx.fillRect(10, -20, 40, 25); // head
+        enemyGfx.fillStyle(0xcccccc, 1);
+        enemyGfx.fillRect(18, -14, 24, 16); // face
+        enemyGfx.fillStyle(0x333344, 1);
+        enemyGfx.fillRect(8, 35, 14, 30);   // left leg
+        enemyGfx.fillRect(38, 35, 14, 30);  // right leg
+        enemyGfx.fillRect(0, 2, 12, 25);    // left arm
+        enemyGfx.fillRect(48, 2, 12, 25);   // right arm
+        enemyGfx.generateTexture('enemy_idle', 60, 70);
+        enemyGfx.generateTexture('enemy_walk', 60, 70);
+        enemyGfx.generateTexture('enemy_attack', 60, 70);
+        enemyGfx.destroy();
+
+        // Ally: friendly NPC
+        const allyGfx = this.make.graphics({ x: 0, y: 0 });
+        allyGfx.fillStyle(0x006633, 1);
+        allyGfx.fillRect(10, 10, 30, 40);   // body
+        allyGfx.fillStyle(0xffcc99, 1);
+        allyGfx.fillCircle(25, 5, 18);       // head
+        allyGfx.fillStyle(0x005522, 1);
+        allyGfx.fillRect(0, 12, 10, 22);    // left arm
+        allyGfx.fillRect(40, 12, 10, 22);   // right arm
+        allyGfx.fillRect(10, 50, 12, 22);   // left leg
+        allyGfx.fillRect(28, 50, 12, 22);   // right leg
+        allyGfx.generateTexture('ally', 50, 75);
+        allyGfx.destroy();
     }
 }
