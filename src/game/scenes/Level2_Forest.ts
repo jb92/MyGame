@@ -56,7 +56,7 @@ export class Level2_Forest extends BaseLevel {
             this.enemies.push(e);
         });
 
-        this.ally = new Ally(this, 2600, 731, this.player, this.config.allyPartLabel);
+        this.ally = new Ally(this, 2600, 751, this.player, this.config.allyPartLabel);
         this.skillOrb = new SkillOrb(this, 2310, 220, Skill.COMBO_PUNCH);
 
         this.createForestBackdrop();

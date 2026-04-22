@@ -153,10 +153,10 @@ export abstract class BaseLevel extends Scene {
     protected makeGround() {
         const gfx = this.add.graphics();
         gfx.fillStyle(this.config.groundColor, 1);
-        gfx.fillRect(0, 0, 3200, 40);
-        gfx.generateTexture(`ground_${this.levelKey}`, 3200, 40);
+        gfx.fillRect(0, 0, 3200, 20);
+        gfx.generateTexture(`ground_${this.levelKey}`, 3200, 20);
         gfx.destroy();
-        this.platforms.create(1600, 748, `ground_${this.levelKey}`).refreshBody();
+        this.platforms.create(1600, 758, `ground_${this.levelKey}`).refreshBody();
     }
 
     private onPlayerDead() {
