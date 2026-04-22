@@ -54,6 +54,8 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         body.setGravityY(300);
         body.setCollideWorldBounds(true);
         body.setOffset(10, 10);
+        // Trim body to the character's visible area (skip transparent padding)
+        body.setSize(200, 230);
         this.setScale(HERO_SCALE);
         this.setOrigin(0.5, 1);
         this.setDepth(10);
@@ -239,6 +241,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
 
         const body = this.body as Phaser.Physics.Arcade.Body;
         if (!body) return;
+        body.setSize(200, 230);
         body.setOffset(10, 10);
     }
 

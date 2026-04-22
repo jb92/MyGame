@@ -29,11 +29,11 @@ export class Level1_City extends BaseLevel {
     }
 
     buildPlatforms() {
-        // Create city platform animation (row 1 = medium platforms, frames 8-15)
+        // Create city platform animations (5 animation frames from column variations)
         if (!this.anims.exists('city_plat_anim')) {
             this.anims.create({
                 key: 'city_plat_anim',
-                frames: this.anims.generateFrameNumbers('city_platform', { start: 8, end: 15 }),
+                frames: this.anims.generateFrameNumbers('city_plat_wide', { start: 0, end: 4 }),
                 frameRate: 4,
                 repeat: -1,
             });
@@ -79,13 +79,13 @@ export class Level1_City extends BaseLevel {
         const plat = this.platforms.create(x + w / 2, y, key);
         plat.setAlpha(0).refreshBody();
 
-        // Animated visual overlay — single platform row (85px tall)
-        const scale = w / 160;
-        const sprite = this.add.sprite(x + w / 2, y - h / 2, 'city_platform', 8);
+        // Animated visual overlay — clean single platform sprite (156×36)
+        const scale = w / 156;
+        const sprite = this.add.sprite(x + w / 2, y, 'city_plat_wide', 0);
         sprite.setScale(scale);
         sprite.setOrigin(0.5, 0.5);
         sprite.setDepth(2);
-        sprite.play({ key: 'city_plat_anim', startFrame: Math.floor(Math.random() * 8) });
+        sprite.play({ key: 'city_plat_anim', startFrame: Math.floor(Math.random() * 5) });
         this.platSprites.push(sprite);
     }
 

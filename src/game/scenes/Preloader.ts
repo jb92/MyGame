@@ -42,8 +42,9 @@ export class Preloader extends Scene
         // Starship: 1024×1024, 3 rows — frame 0=repaired, frame 2=damaged
         this.load.spritesheet('starship', 'ship/Starship-nobg.png', { frameWidth: 1024, frameHeight: 341 });
 
-        // City platforms: 1280×1280, 8 cols × 15 rows (3 sizes × 5 groups), 160×85 per frame
-        this.load.spritesheet('city_platform', 'platforms/city-spritesheet.png', { frameWidth: 160, frameHeight: 85 });
+        // City platforms: extracted individual frames
+        this.load.spritesheet('city_plat_wide', 'platforms/city-platform-wide.png', { frameWidth: 156, frameHeight: 36 });
+        this.load.spritesheet('city_plat_narrow', 'platforms/city-platform-narrow.png', { frameWidth: 69, frameHeight: 36 });
     }
 
     create ()
