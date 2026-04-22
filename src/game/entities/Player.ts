@@ -182,12 +182,25 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         };
         this.setTexture(texMap[s]);
         this.setScale(0.18, 0.18);
-        // Origin and offset stay constant across all states.
-        // setOrigin(0.5, 1) anchors the sprite at its feet — the feet stay at the
-        // same world y in every state, so there is no upward or downward jump.
-        // Never change offset here: a smaller offset.y would lift the body off the
-        // ground, making onGround=false the very next frame and triggering a
-        // duck→jump→duck oscillation that looks like a ghost/duplicate sprite.
+        this.setOrigin(0.5, 1.0);
+
+        // The duck sprite has ~12px of empty space at the bottom of its canvas
+        // (feet land at ~87% sprite height vs ~96% for idle).  To keep feet on
+        // the ground we shift the sprite ~9px lower by using a smaller offsetY.
+        //
+        // Changing body.setOffset() recalculates body.position from sprite.position,
+        // which would lift the body off the ground and cause a duck↔jump oscillation.
+        // Fix: save body.bottom first, change offset, then restore body.position.y
+        // so the physics body stays at the exact same world-space Y.
+        const body = this.body as Phaser.Physics.Arcade.Body;
+        if (!body) return;
+        const prevBottom = body.bottom;
+        if (s === 'duck' || s === 'slam') {
+            body.setOffset(10, 1);   // shifts sprite.y from 718 → 727 when on ground
+        } else {
+            body.setOffset(10, 10);
+        }
+        body.position.y = prevBottom - body.height; // restore body world-Y
     }
 
     private updateHitbox() {
