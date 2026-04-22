@@ -56,11 +56,32 @@ export class MainMenu extends Scene
             }
         ).setOrigin(0.5).setDepth(10);
 
-        // Controls
-        this.add.text(W / 2, 430,
-            'MOVE: ← → arrows    JUMP: ↑    DUCK: ↓    PUNCH: Z\nDASH: SHIFT (unlock)    TALK: E',
-            { fontSize: '13px', color: '#778899', align: 'center' }
-        ).setOrigin(0.5).setDepth(10);
+        // Controls panel
+        const panelY = 410;
+        const panelW = 480;
+        const panelH = 120;
+        const panel = this.add.graphics();
+        panel.fillStyle(0x112244, 0.85);
+        panel.fillRoundedRect(W / 2 - panelW / 2, panelY - 10, panelW, panelH, 12);
+        panel.lineStyle(2, 0x4488cc, 0.9);
+        panel.strokeRoundedRect(W / 2 - panelW / 2, panelY - 10, panelW, panelH, 12);
+        panel.setDepth(10);
+
+        this.add.text(W / 2, panelY + 8, '— CONTROLS —', {
+            fontSize: '16px', color: '#ffdd44', fontStyle: 'bold',
+            align: 'center',
+        }).setOrigin(0.5).setDepth(11);
+
+        const controlLines = [
+            '← →  Move        ↑  Jump        Z  Punch',
+            'SHIFT  Dash (unlock)        E  Talk to allies',
+        ];
+        controlLines.forEach((line, i) => {
+            this.add.text(W / 2, panelY + 40 + i * 28, line, {
+                fontSize: '16px', color: '#cce0ff', align: 'center',
+                fontFamily: 'monospace',
+            }).setOrigin(0.5).setDepth(11);
+        });
 
         // Start button
         const startBtn = this.add.text(W / 2, 540, '[ PRESS ENTER TO START ]', {
