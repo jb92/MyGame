@@ -66,6 +66,7 @@ export class Preloader extends Scene
         // Create animations for shared spritesheets
         this.createAllyAnimations();
         this.createOrbAnimation();
+        this.createRaindropTexture();
         this.scene.start('MainMenu');
     }
 
@@ -91,5 +92,13 @@ export class Preloader extends Scene
             frameRate: 12,
             repeat: -1,
         });
+    }
+
+    private createRaindropTexture() {
+        const gfx = this.add.graphics();
+        gfx.fillStyle(0xaaccee, 1);
+        gfx.fillRect(0, 0, 2, 10);
+        gfx.generateTexture('raindrop', 2, 10);
+        gfx.destroy();
     }
 }

@@ -77,6 +77,18 @@ export class MainMenu extends Scene
             }).setOrigin(0.5).setDepth(11);
         });
 
+        // Continuous rain
+        this.add.particles(0, -10, 'raindrop', {
+            x: { min: 0, max: W },
+            lifespan: 1400,
+            speedY: { min: 300, max: 500 },
+            speedX: { min: -50, max: -20 },
+            alpha: { start: 0.4, end: 0 },
+            scale: { start: 0.8, end: 0.3 },
+            quantity: 2,
+            frequency: 30,
+        }).setDepth(5);
+
         // Start button
         const startBtn = this.add.text(W / 2, 540, '[ PRESS ENTER TO START ]', {
             fontSize: '22px', color: '#ffdd44',

@@ -74,6 +74,20 @@ export class Level1_City extends BaseLevel {
         this.skillOrb = new SkillOrb(this, 1490, 360, Skill.DASH);
 
         this.createCityBackdrop();
+        this.createRain();
+    }
+
+    private createRain() {
+        this.add.particles(0, -10, 'raindrop', {
+            x: { min: 0, max: 1024 },
+            lifespan: 1400,
+            speedY: { min: 300, max: 500 },
+            speedX: { min: -50, max: -20 },
+            alpha: { start: 0.4, end: 0 },
+            scale: { start: 0.8, end: 0.3 },
+            quantity: 2,
+            frequency: 30,
+        }).setDepth(50).setScrollFactor(0);
     }
 
     private createCityBackdrop() {

@@ -26,6 +26,18 @@ export class IntroCutscene extends Scene {
         // Stop the menu after cutscene has rendered its first frame
         this.time.delayedCall(50, () => this.scene.stop('MainMenu'));
 
+        // Continuous rain (matches MainMenu and Level1 for seamless continuity)
+        this.add.particles(0, -10, 'raindrop', {
+            x: { min: 0, max: W },
+            lifespan: 1400,
+            speedY: { min: 300, max: 500 },
+            speedX: { min: -50, max: -20 },
+            alpha: { start: 0.4, end: 0 },
+            scale: { start: 0.8, end: 0.3 },
+            quantity: 2,
+            frequency: 30,
+        }).setDepth(45);
+
         // Allow skipping with ENTER or SPACE
         const skipText = this.add.text(W - 20, H - 20, 'Press ENTER to skip', {
             fontSize: '12px', color: '#666688',
