@@ -83,8 +83,8 @@ export class Level2_Forest extends BaseLevel {
             this.enemies.push(e);
         });
 
-        this.ally = new Ally(this, 2600, 772, this.player, this.config.allyPartLabel);
-        this.skillOrb = new SkillOrb(this, 2310, 220, Skill.COMBO_PUNCH);
+        this.ally = new Ally(this, 2310, 276, this.player, this.config.allyPartLabel);
+        this.skillOrb = new SkillOrb(this, 2600, 690, Skill.COMBO_PUNCH);
 
         this.createForestBackdrop();
     }
@@ -100,18 +100,19 @@ export class Level2_Forest extends BaseLevel {
             gfx.fillCircle(Math.random() * 3200, Math.random() * 400, Math.random() < 0.7 ? 1 : 2);
         }
 
-        // Background tree trunks
-        gfx.fillStyle(0x1a3010, 1);
-        for (let tx = 0; tx < 3200; tx += 80) {
-            const h = 200 + Math.random() * 300;
-            gfx.fillRect(tx + 20, 768 - h, 30, h);
-        }
-
-        // Tree canopy
+        // Background tree trunks + canopy (same loop so they align)
         const colors = [0x1a4d0a, 0x0d3305, 0x224d10];
         for (let tx = 0; tx < 3200; tx += 80) {
+            const h = 200 + Math.random() * 300;
+            const trunkTop = 768 - h;
+            const cx = tx + 35;
+
+            gfx.fillStyle(0x1a3010, 1);
+            gfx.fillRect(tx + 20, trunkTop, 30, h);
+
+            const radius = 50 + Math.random() * 40;
             gfx.fillStyle(colors[Math.floor(Math.random() * colors.length)], 1);
-            gfx.fillCircle(tx + 35, 200 + Math.random() * 200, 50 + Math.random() * 40);
+            gfx.fillCircle(cx, trunkTop - radius * 0.4, radius);
         }
 
         // Glowing mushrooms

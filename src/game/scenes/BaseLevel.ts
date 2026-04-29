@@ -91,11 +91,11 @@ export abstract class BaseLevel extends Scene {
             });
         }
 
-        // Exit zone label
+        // Exit zone – wood sign image, bottom-aligned to ground surface
         const exitX = 3100;
-        this.exitZone = this.add.rectangle(exitX, 700, 60, 120, 0x00ff88, 0.3)
-            .setStrokeStyle(2, 0x00ff88);
-        this.add.text(exitX, 630, '▶ EXIT', { fontSize: '12px', color: '#00ff88' }).setOrigin(0.5);
+        const exitSign = this.add.image(exitX, 748, 'exit_sign').setOrigin(0.5, 1).setScale(0.15);
+        this.exitZone = this.add.rectangle(exitX, 748, exitSign.displayWidth, exitSign.displayHeight, 0x00ff88, 0)
+            .setOrigin(0.5, 1);
 
         // Event listeners
         EventBus.on('player-dead', this.onPlayerDead, this);

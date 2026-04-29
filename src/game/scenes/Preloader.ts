@@ -59,6 +59,9 @@ export class Preloader extends Scene
 
         // Forest platform (single image 1024×1024)
         this.load.image('forest_plat', 'platforms/forest-platform.png');
+
+        // Exit sign
+        this.load.image('exit_sign', 'ui/exit-sign.png');
     }
 
     create ()
