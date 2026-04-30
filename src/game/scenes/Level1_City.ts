@@ -70,8 +70,8 @@ export class Level1_City extends BaseLevel {
             this.enemies.push(e);
         });
 
-        this.ally = new Ally(this, 2500, 772, this.player, this.config.allyPartLabel);
-        this.skillOrb = new SkillOrb(this, 1490, 360, Skill.DASH);
+        this.ally = new Ally(this, 1490, 436, this.player, this.config.allyPartLabel);
+        this.skillOrb = new SkillOrb(this, 2500, 690, Skill.DASH);
 
         this.createCityBackdrop();
         this.createRain();

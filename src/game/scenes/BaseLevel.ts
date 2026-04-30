@@ -188,7 +188,12 @@ export abstract class BaseLevel extends Scene {
         // HUD will update via its own listener
     }
 
-    private goToNextLevel() {
+    /** Override in subclass to redirect the exit destination (e.g. MissingParts check). */
+    protected getExitDestination(): string {
+        return this.config.nextScene;
+    }
+
+    protected goToNextLevel() {
         if (this.transitioning) return;
         this.transitioning = true;
 
@@ -201,9 +206,10 @@ export abstract class BaseLevel extends Scene {
         EventBus.emit('hud-shutdown');
         this.scene.stop('HUD');
 
+        const destination = this.getExitDestination();
         GameState.currentLevel++;
         this.cameras.main.fade(500, 0, 0, 0, false, (_cam: any, progress: number) => {
-            if (progress === 1) this.scene.start(this.config.nextScene);
+            if (progress === 1) this.scene.start(destination);
         });
     }
 

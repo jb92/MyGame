@@ -6,6 +6,7 @@ import { SkillOrb } from '../entities/SkillOrb';
 import { Skill, GameState } from '../systems/GameState';
 import { EventBus } from '../EventBus';
 
+
 /**
  * Level 3 — Lab
  * Environment: government research facility
@@ -30,6 +31,13 @@ export class Level3_Lab extends BaseLevel {
             enemyHp: 100,
             enemyDmg: 25,
         };
+    }
+
+    protected getExitDestination(): string {
+        if (GameState.spareParts < GameState.totalSpareParts) {
+            return 'MissingParts';
+        }
+        return 'Victory';
     }
 
     buildPlatforms() {
@@ -62,8 +70,8 @@ export class Level3_Lab extends BaseLevel {
             this.enemies.push(e);
         });
 
-        this.ally = new Ally(this, 2850, 772, this.player, this.config.allyPartLabel);
-        this.skillOrb = new SkillOrb(this, 2610, 180, Skill.GROUND_SLAM);
+        this.ally = new Ally(this, 2610, 232, this.player, this.config.allyPartLabel);
+        this.skillOrb = new SkillOrb(this, 2850, 690, Skill.GROUND_SLAM);
 
         // Starship object near the exit
         this.buildStarship();
