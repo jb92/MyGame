@@ -1,3 +1,4 @@
+import * as Phaser from 'phaser';
 import { BaseLevel, LevelConfig } from './BaseLevel';
 import { Enemy } from '../entities/Enemy';
 import { Ally } from '../entities/Ally';
@@ -19,7 +20,7 @@ export class Level1_City extends BaseLevel {
             bgColor: '#1a1a2e',
             groundColor: 0x444455,
             platformColor: 0x667788,
-            nextScene: 'Level2_Forest',
+            nextScene: 'BossArena',
             skillToUnlock: Skill.DASH,
             allyPartLabel: 'Quantum Engine Core',
             enemyCount: 5,
@@ -75,6 +76,7 @@ export class Level1_City extends BaseLevel {
 
         this.createCityBackdrop();
         this.createRain();
+        this.createThunder();
     }
 
     private createRain() {
@@ -119,12 +121,81 @@ export class Level1_City extends BaseLevel {
                 }
             }
         });
+    }
 
-        gfx.fillStyle(0xff0066, 0.8);
-        gfx.fillRect(430, 395, 40, 10);
-        gfx.fillStyle(0x00ffcc, 0.8);
-        gfx.fillRect(900, 355, 50, 10);
-        gfx.fillStyle(0xff8800, 0.8);
-        gfx.fillRect(1510, 415, 45, 10);
+    private createThunder() {
+        // Flash overlay for lightning strikes
+        const flash = this.add.rectangle(512, 384, 1024, 768, 0xffffff)
+            .setScrollFactor(0).setDepth(80).setAlpha(0);
+
+        // Lightning bolt graphic (drawn procedurally)
+        const bolt = this.add.graphics().setDepth(79).setScrollFactor(0).setAlpha(0);
+
+        const randInt = (min: number, max: number) =>
+            Math.floor(Math.random() * (max - min + 1)) + min;
+
+        let active = true;
+        this.events.once('shutdown', () => { active = false; });
+
+        const strike = () => {
+            if (!active) return;
+
+            // Draw a jagged lightning bolt
+            bolt.clear();
+            bolt.lineStyle(3, 0xccddff, 1);
+            const startX = randInt(100, 924);
+            let x = startX;
+            let y = 0;
+            bolt.beginPath();
+            bolt.moveTo(x, y);
+            for (let i = 0; i < 15 && y < 300; i++) {
+                x += randInt(-30, 30);
+                y += randInt(20, 50);
+                bolt.lineTo(x, y);
+            }
+            bolt.strokePath();
+
+            // Branch bolt
+            bolt.lineStyle(1.5, 0xaabbee, 0.7);
+            const branchY = randInt(60, 150);
+            const branchX = startX + randInt(-20, 20);
+            bolt.beginPath();
+            bolt.moveTo(branchX, branchY);
+            let bx = branchX;
+            let by = branchY;
+            for (let i = 0; i < 4; i++) {
+                bx += randInt(-25, 25);
+                by += randInt(15, 35);
+                bolt.lineTo(bx, by);
+            }
+            bolt.strokePath();
+
+            // Flash + fade
+            bolt.setAlpha(1);
+            flash.setAlpha(0.15);
+
+            this.tweens.add({
+                targets: [bolt, flash],
+                alpha: 0,
+                duration: 200,
+                onComplete: () => {
+                    if (!active) return;
+                    // Sometimes double-flash
+                    if (Math.random() < 0.4) {
+                        this.time.delayedCall(100, () => {
+                            if (!active) return;
+                            flash.setAlpha(0.08);
+                            this.tweens.add({ targets: flash, alpha: 0, duration: 150 });
+                        });
+                    }
+                },
+            });
+
+            // Schedule next strike
+            this.time.delayedCall(randInt(3000, 8000), strike);
+        };
+
+        // First strike after a short delay
+        this.time.delayedCall(randInt(1000, 3000), strike);
     }
 }

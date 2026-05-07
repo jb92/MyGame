@@ -43,6 +43,12 @@ export class Preloader extends Scene
         this.load.spritesheet('gman_walk',   'enemies/G-man-walk.png',   frameConfig);
         this.load.spritesheet('gman_attack', 'enemies/G-man-attack.png', frameConfig);
 
+        // G-man boss sprites (5×5 grid)
+        this.load.spritesheet('gman_boss_idle',  'enemies/bosses/gman-boss-idle.png',  frameConfig);
+        this.load.spritesheet('gman_boss_walk',  'enemies/bosses/gman-boss-walk.png',  frameConfig);
+        this.load.spritesheet('gman_boss_jump',  'enemies/bosses/gman-boss-jump.png',  frameConfig);
+        this.load.spritesheet('gman_boss_punch', 'enemies/bosses/gman-boss-punch.png', frameConfig);
+
         // Starship: 1024×1024, 3 rows — frame 0=repaired, frame 2=damaged
         this.load.spritesheet('starship', 'ship/Starship-nobg.png', { frameWidth: 1024, frameHeight: 341 });
 
