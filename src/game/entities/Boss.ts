@@ -7,10 +7,12 @@ import * as Phaser from 'phaser';
  */
 
 const BOSS_SCALE = 0.7;
-const WALK_SPEED = 120;
+const WALK_SPEED = 170;
 const ATTACK_RANGE = 100;
-const PUNCH_COOLDOWN = 1600;
-const STUN_FRAMES = 30; // ~500ms at 60fps
+const PUNCH_COOLDOWN = 900;
+const STUN_FRAMES = 20; // ~333ms at 60fps
+const JUMP_VELOCITY = -500;
+const JUMP_COOLDOWN = 1200; // ms between jumps
 
 export class Boss extends Phaser.Physics.Arcade.Sprite {
     maxHp: number;
@@ -24,6 +26,7 @@ export class Boss extends Phaser.Physics.Arcade.Sprite {
     private hitThisFrame = false; // flag read by scene
     private tintFrames = 0;
     private target: Phaser.Physics.Arcade.Sprite;
+    private jumpCdFrames = 0;
 
     private healthBar!: Phaser.GameObjects.Rectangle;
     private healthBarBg!: Phaser.GameObjects.Rectangle;
@@ -51,7 +54,7 @@ export class Boss extends Phaser.Physics.Arcade.Sprite {
         const body = this.body as Phaser.Physics.Arcade.Body;
         body.setGravityY(400);
         body.setSize(100, 160);
-        body.setOffset(78, 74);
+        body.setOffset(78, 60);
         body.setCollideWorldBounds(true);
         this.setScale(BOSS_SCALE);
         this.setOrigin(0.5, 1);
@@ -117,6 +120,7 @@ export class Boss extends Phaser.Physics.Arcade.Sprite {
 
         // Decrement frame-based timers
         if (this.punchCdFrames > 0) this.punchCdFrames--;
+        if (this.jumpCdFrames > 0) this.jumpCdFrames--;
         if (this.tintFrames > 0) {
             this.tintFrames--;
             if (this.tintFrames === 0) this.clearTint();
@@ -137,7 +141,7 @@ export class Boss extends Phaser.Physics.Arcade.Sprite {
             const body = this.body as Phaser.Physics.Arcade.Body;
             if (body) body.setVelocityX(0);
             // Deal damage at the midpoint of the attack anim
-            if (this.attackFrames === 18) {
+            if (this.attackFrames === 15) {
                 this.hitThisFrame = true;
             }
             if (this.attackFrames === 0) {
@@ -146,31 +150,40 @@ export class Boss extends Phaser.Physics.Arcade.Sprite {
             return this.hitThisFrame;
         }
 
-        // AI: chase or attack
+        // AI: chase, jump, or attack
         const body = this.body as Phaser.Physics.Arcade.Body;
         if (!body) return false;
 
         const dx = this.target.x - this.x;
+        const dy = this.target.y - this.y;
         const dist = Math.abs(dx);
         const dir = dx > 0 ? 1 : -1;
+        const onGround = body.blocked.down || body.touching.down;
 
         // Face target
         this.setFlipX(dir < 0);
 
-        if (dist <= ATTACK_RANGE && this.punchCdFrames <= 0) {
+        if (dist <= ATTACK_RANGE && this.punchCdFrames <= 0 && Math.abs(dy) < 60) {
             // Start attack
             body.setVelocityX(0);
             this.safePlay('anim_boss_punch');
-            this.attackFrames = 36; // ~600ms at 60fps
+            this.attackFrames = 30; // ~500ms at 60fps (faster swing)
             this.punchCdFrames = Math.round(PUNCH_COOLDOWN / 16.67);
+        } else if (dy < -80 && dist < 250 && onGround && this.jumpCdFrames <= 0) {
+            // Player is above — jump toward them
+            body.setVelocityY(JUMP_VELOCITY);
+            body.setVelocityX(dir * WALK_SPEED * 1.2);
+            this.safePlay('anim_boss_jump');
+            this.jumpCdFrames = Math.round(JUMP_COOLDOWN / 16.67);
         } else if (dist > ATTACK_RANGE) {
-            // Chase
-            body.setVelocityX(dir * WALK_SPEED);
-            this.safePlay('anim_boss_walk');
+            // Chase — move faster when far away
+            const speed = dist > 200 ? WALK_SPEED * 1.3 : WALK_SPEED;
+            body.setVelocityX(dir * speed);
+            if (onGround) this.safePlay('anim_boss_walk');
         } else {
-            // In range but on cooldown
-            body.setVelocityX(0);
-            this.safePlay('anim_boss_idle');
+            // In range but on cooldown — stay close and pressure
+            body.setVelocityX(dir * WALK_SPEED * 0.4);
+            if (onGround) this.safePlay('anim_boss_walk');
         }
 
         return false;

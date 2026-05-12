@@ -43,6 +43,11 @@ export class Preloader extends Scene
         this.load.spritesheet('gman_walk',   'enemies/G-man-walk.png',   frameConfig);
         this.load.spritesheet('gman_attack', 'enemies/G-man-attack.png', frameConfig);
 
+        // Soldier enemy sprites (1280×1280, 5×5 grid)
+        this.load.spritesheet('soldier_idle',   'enemies/Soldier-idle-v1.png',   frameConfig);
+        this.load.spritesheet('soldier_walk',   'enemies/Soldier-walk-v1.png',   frameConfig);
+        this.load.spritesheet('soldier_attack', 'enemies/Soldier-attack-v1.png', frameConfig);
+
         // G-man boss sprites (5×5 grid)
         this.load.spritesheet('gman_boss_idle',  'enemies/bosses/gman-boss-idle.png',  frameConfig);
         this.load.spritesheet('gman_boss_walk',  'enemies/bosses/gman-boss-walk.png',  frameConfig);
@@ -76,6 +81,7 @@ export class Preloader extends Scene
         this.createAllyAnimations();
         this.createOrbAnimation();
         this.createRaindropTexture();
+        this.createBulletTexture();
         this.scene.start('MainMenu');
     }
 
@@ -108,6 +114,16 @@ export class Preloader extends Scene
         gfx.fillStyle(0xaaccee, 1);
         gfx.fillRect(0, 0, 2, 10);
         gfx.generateTexture('raindrop', 2, 10);
+        gfx.destroy();
+    }
+
+    private createBulletTexture() {
+        const gfx = this.add.graphics();
+        gfx.fillStyle(0xffee66, 1);
+        gfx.fillRect(0, 1, 12, 3);
+        gfx.fillStyle(0xffffff, 1);
+        gfx.fillRect(3, 2, 6, 1);
+        gfx.generateTexture('soldier_bullet', 12, 5);
         gfx.destroy();
     }
 }

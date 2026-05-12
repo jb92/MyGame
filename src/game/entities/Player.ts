@@ -7,8 +7,11 @@ const JUMP_VELOCITY = -520;
 const DASH_DISTANCE = 500;
 const DASH_COOLDOWN = 800;
 const PUNCH_COOLDOWN = 400;
-const COMBO_WINDOW = 600;
 const SLAM_VELOCITY = 600;
+
+const FIST_SPEED = 350;
+const FIST_RANGE = 280;
+const FIST_DAMAGE = 30;
 
 // Time in ms a move key must be held before switching from walk to run
 const WALK_TO_RUN_THRESHOLD = 2000;
@@ -31,8 +34,6 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     private facingRight = true;
     private dashCooldown = 0;
     private punchCooldown = 0;
-    private comboCount = 0;
-    private comboTimer = 0;
     private slamming = false;
     private invincibleTimer = 0;
 
@@ -41,6 +42,18 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
 
     // Locks input during victory / pickup one-shot anims
     private inputLocked = false;
+
+    // Ground dust particles
+    private dustEmitter!: Phaser.GameObjects.Particles.ParticleEmitter;
+    private dustTimer = 0;
+    private wasOnGround = true;
+
+    // Fist launch projectile (Rayman-style)
+    fistProjectile!: Phaser.GameObjects.Sprite;
+    private fistActive = false;
+    private fistStartX = 0;
+    private fistDir = 1;
+    private fistTrailTimer = 0;
 
     // Hitbox for melee attack
     punchHitbox!: Phaser.GameObjects.Rectangle;
@@ -74,6 +87,8 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
             .setDepth(11);
 
         this.createAnimations();
+        this.createDustEffect();
+        this.createFistProjectile();
         this.play('anim_idle');
     }
 
@@ -111,13 +126,13 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
 
         this.dashCooldown = Math.max(0, this.dashCooldown - delta);
         this.punchCooldown = Math.max(0, this.punchCooldown - delta);
-        this.comboTimer = Math.max(0, this.comboTimer - delta);
         this.invincibleTimer = Math.max(0, this.invincibleTimer - delta);
 
-        if (this.comboTimer <= 0) this.comboCount = 0;
+        this.updateFist(delta);
 
         // Block all input during one-shot animations (victory / pickup)
         if (this.inputLocked) {
+            this.wasOnGround = onGround;
             this.updateHitbox();
             return;
         }
@@ -127,7 +142,9 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
             if (onGround) {
                 this.slamming = false;
                 this.setState('idle');
+                this.dustEmitter?.explode(12, this.x, this.y - 10);
             }
+            this.wasOnGround = onGround;
             this.updateHitbox();
             return;
         }
@@ -158,6 +175,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         // --- Jump ---
         if ((Phaser.Input.Keyboard.JustDown(this.cursors.up) || Phaser.Input.Keyboard.JustDown(this.cursors.space)) && onGround) {
             body.setVelocityY(JUMP_VELOCITY);
+            this.dustEmitter?.explode(6, this.x, this.y - 10);
         }
 
         // --- Ground Slam (↓ in air) ---
@@ -188,18 +206,17 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
             });
         }
 
-        // --- Punch / Combo ---
+        // --- Punch + Fist Launch ---
         if (Phaser.Input.Keyboard.JustDown(this.keyZ) && this.punchCooldown <= 0) {
-            this.punchCooldown = GameState.hasSkill(Skill.COMBO_PUNCH) ? PUNCH_COOLDOWN * 0.7 : PUNCH_COOLDOWN;
-            if (GameState.hasSkill(Skill.COMBO_PUNCH)) {
-                this.comboCount = (this.comboTimer > 0 ? this.comboCount + 1 : 1) % 3;
-                this.comboTimer = COMBO_WINDOW;
-            } else {
-                this.comboCount = 0;
-            }
+            this.punchCooldown = PUNCH_COOLDOWN;
             this.setState('punch');
             this.punchHitbox.setAlpha(0);
-            EventBus.emit('player-punch', { combo: this.comboCount });
+            EventBus.emit('player-punch', { combo: 0 });
+
+            if (GameState.hasSkill(Skill.FIST_LAUNCH)) {
+                this.launchFist();
+            }
+
             this.scene.time.delayedCall(200, () => {
                 if (this.state === 'punch') this.setState('idle');
             });
@@ -221,6 +238,8 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
             }
         }
 
+        this.emitRunDust(delta, onGround, moving);
+        this.wasOnGround = onGround;
         this.updateHitbox();
     }
 
@@ -288,14 +307,35 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         return this.slamming;
     }
 
-    getPunchCombo(): number {
-        return this.comboCount;
+    getPunchDamage(): number {
+        return 20;
     }
 
-    getPunchDamage(): number {
-        const base = 20;
-        if (!GameState.hasSkill(Skill.COMBO_PUNCH)) return base;
-        return base + this.comboCount * 10;
+    getFistDamage(): number {
+        return FIST_DAMAGE;
+    }
+
+    isFistActive(): boolean {
+        return this.fistActive;
+    }
+
+    deactivateFist() {
+        if (!this.fistActive) return;
+        this.fistActive = false;
+        // Impact flash
+        const flash = this.scene.add.circle(
+            this.fistProjectile.x, this.fistProjectile.y,
+            18, 0xff8833, 0.8,
+        ).setDepth(12);
+        this.scene.tweens.add({
+            targets: flash, alpha: 0, scale: 2.5, duration: 150,
+            onComplete: () => flash.destroy(),
+        });
+        this.scene.tweens.add({
+            targets: this.fistProjectile,
+            alpha: 0, scale: 0.3, duration: 120,
+            onComplete: () => this.fistProjectile.setVisible(false),
+        });
     }
 
     getSlamDamage(): number {
@@ -314,7 +354,124 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         }
     }
 
+    private createDustEffect() {
+        if (!this.scene.textures.exists('hero_dust')) {
+            const gfx = this.scene.add.graphics();
+            gfx.fillStyle(0xffffff, 1);
+            gfx.fillCircle(3, 3, 3);
+            gfx.generateTexture('hero_dust', 6, 6);
+            gfx.destroy();
+        }
+
+        this.dustEmitter = this.scene.add.particles(0, 0, 'hero_dust', {
+            speed: { min: 30, max: 80 },
+            angle: { min: 230, max: 310 },
+            lifespan: { min: 250, max: 450 },
+            scale: { start: 0.8, end: 0 },
+            alpha: { start: 0.5, end: 0 },
+            tint: [0xaa9977, 0xbbaa88, 0x998866, 0xccbb99],
+            gravityY: 100,
+            frequency: -1,
+            emitting: false,
+        }).setDepth(5);
+    }
+
+    private emitRunDust(delta: number, onGround: boolean, moving: boolean) {
+        if (!this.dustEmitter) return;
+
+        // Landing burst
+        if (onGround && !this.wasOnGround) {
+            this.dustEmitter.explode(8, this.x, this.y - 10);
+        }
+
+        // Walking / running dust
+        if (onGround && moving && (this.state === 'walk' || this.state === 'run')) {
+            this.dustTimer += delta;
+            const interval = this.state === 'run' ? 80 : 180;
+            if (this.dustTimer >= interval) {
+                const behindX = this.facingRight ? this.x - 8 : this.x + 8;
+                this.dustEmitter.explode(this.state === 'run' ? 3 : 1, behindX, this.y - 10);
+                this.dustTimer = 0;
+            }
+        } else {
+            this.dustTimer = 0;
+        }
+    }
+
+    private createFistProjectile() {
+        if (!this.scene.textures.exists('fist_projectile')) {
+            const gfx = this.scene.add.graphics();
+            // Fist body — large oval (orange to match hero)
+            gfx.fillStyle(0xff6600, 1);
+            gfx.fillEllipse(16, 14, 28, 22);
+            // Knuckle bumps
+            gfx.fillStyle(0xdd5500, 1);
+            gfx.fillCircle(28, 8, 5);
+            gfx.fillCircle(28, 14, 5);
+            gfx.fillCircle(28, 20, 5);
+            // Thumb
+            gfx.fillCircle(6, 20, 4);
+            // Outline
+            gfx.lineStyle(2, 0xaa4400, 1);
+            gfx.strokeEllipse(16, 14, 28, 22);
+            // Highlight
+            gfx.fillStyle(0xffffff, 0.3);
+            gfx.fillEllipse(14, 10, 10, 8);
+            gfx.generateTexture('fist_projectile', 34, 28);
+            gfx.destroy();
+        }
+
+        this.fistProjectile = this.scene.add.sprite(0, 0, 'fist_projectile');
+        this.fistProjectile.setVisible(false);
+        this.fistProjectile.setDepth(11);
+        this.fistProjectile.setScale(1.8);
+    }
+
+    private launchFist() {
+        if (this.fistActive) return;
+        this.fistActive = true;
+        this.fistDir = this.facingRight ? 1 : -1;
+        this.fistStartX = this.x;
+        this.fistTrailTimer = 0;
+
+        const spawnX = this.x + this.fistDir * 40;
+        const spawnY = this.y - 55;
+        this.fistProjectile.setPosition(spawnX, spawnY);
+        this.fistProjectile.setVisible(true);
+        this.fistProjectile.setAlpha(1);
+        this.fistProjectile.setScale(1.8);
+        this.fistProjectile.setFlipX(this.fistDir < 0);
+    }
+
+    private updateFist(delta: number) {
+        if (!this.fistActive) return;
+
+        this.fistProjectile.x += this.fistDir * FIST_SPEED * (delta / 1000);
+
+        // Motion trail
+        this.fistTrailTimer += delta;
+        if (this.fistTrailTimer >= 35) {
+            this.fistTrailTimer = 0;
+            const trail = this.scene.add.circle(
+                this.fistProjectile.x - this.fistDir * 12,
+                this.fistProjectile.y,
+                10, 0xff6600, 0.35,
+            ).setDepth(10);
+            this.scene.tweens.add({
+                targets: trail, alpha: 0, scale: 0.2, duration: 180,
+                onComplete: () => trail.destroy(),
+            });
+        }
+
+        // Max range reached
+        if (Math.abs(this.fistProjectile.x - this.fistStartX) >= FIST_RANGE) {
+            this.deactivateFist();
+        }
+    }
+
     destroy(fromScene?: boolean) {
+        this.dustEmitter?.destroy();
+        this.fistProjectile?.destroy();
         this.punchHitbox.destroy();
         super.destroy(fromScene);
     }

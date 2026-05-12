@@ -16,10 +16,10 @@ export const SKILL_CONFIGS: Record<Skill, SkillOrbConfig> = {
         description: 'Your legs remember the alien dash technique!\nPress SHIFT to dash forward.',
         color: 0x00aaff,
     },
-    [Skill.COMBO_PUNCH]: {
-        skill: Skill.COMBO_PUNCH,
-        label: 'COMBO PUNCH',
-        description: 'Your fists recall the triple combo!\nPress Z rapidly for a 3-hit combo.',
+    [Skill.FIST_LAUNCH]: {
+        skill: Skill.FIST_LAUNCH,
+        label: 'ROCKET FIST',
+        description: 'Your fists remember the alien projection technique!\nPress Z to launch a powerful fist forward.',
         color: 0xff6600,
     },
     [Skill.GROUND_SLAM]: {

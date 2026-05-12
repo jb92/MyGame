@@ -33,7 +33,7 @@ export class HUD extends Scene {
             .setScrollFactor(0).setDepth(103);
 
         // Skill icons
-        const skills = ['DASH', 'COMBO', 'SLAM'];
+        const skills = ['DASH', 'FIST', 'SLAM'];
         skills.forEach((s, i) => {
             const x = 14 + i * 64;
             const icon = this.add.rectangle(x + 24, 740, 44, 28, 0x222244)
@@ -69,7 +69,7 @@ export class HUD extends Scene {
 
     private updateSkills() {
         if (!this.alive) return;
-        const skillKeys = [Skill.DASH, Skill.COMBO_PUNCH, Skill.GROUND_SLAM];
+        const skillKeys = [Skill.DASH, Skill.FIST_LAUNCH, Skill.GROUND_SLAM];
         skillKeys.forEach((k, i) => {
             const unlocked = GameState.hasSkill(k);
             this.skillIcons[i].setFillStyle(unlocked ? 0x334488 : 0x222244);

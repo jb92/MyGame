@@ -128,6 +128,19 @@ export abstract class BaseLevel extends Scene {
             });
         }
 
+        // Fist launch projectile hits enemies
+        if (this.player.isFistActive()) {
+            const fist = this.player.fistProjectile;
+            for (const e of this.enemies) {
+                const dist = Phaser.Math.Distance.Between(fist.x, fist.y, e.x, e.y);
+                if (dist < 55) {
+                    e.hit(this.player.getFistDamage());
+                    this.player.deactivateFist();
+                    break;
+                }
+            }
+        }
+
         // Ground slam hits enemies below
         if (this.player.isSlamming()) {
             this.enemies.forEach(e => {

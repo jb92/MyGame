@@ -60,6 +60,7 @@ export class BossArena extends Scene {
         // Create city-inspired backdrop
         this.createCityBackdrop();
         this.createRain();
+        this.createThunder();
 
         // Events — only player-dead needs EventBus (from Player entity)
         EventBus.on('player-dead', this.onPlayerDead, this);
@@ -152,16 +153,136 @@ export class BossArena extends Scene {
     }
 
     private createRain() {
+        // Heavy rain falling from the sky
         this.add.particles(0, -10, 'raindrop', {
             x: { min: 0, max: 1024 },
-            lifespan: 1400,
-            speedY: { min: 300, max: 500 },
-            speedX: { min: -50, max: -20 },
-            alpha: { start: 0.4, end: 0 },
-            scale: { start: 0.8, end: 0.3 },
-            quantity: 2,
-            frequency: 30,
+            lifespan: 1000,
+            speedY: { min: 500, max: 800 },
+            speedX: { min: -60, max: -30 },
+            alpha: { start: 0.6, end: 0.1 },
+            scale: { start: 1, end: 0.4 },
+            quantity: 6,
+            frequency: 20,
         }).setDepth(50).setScrollFactor(0);
+
+        // Second layer — lighter background rain for depth
+        this.add.particles(0, -10, 'raindrop', {
+            x: { min: 0, max: 1024 },
+            lifespan: 1200,
+            speedY: { min: 350, max: 550 },
+            speedX: { min: -40, max: -15 },
+            alpha: { start: 0.2, end: 0 },
+            scale: { start: 0.5, end: 0.2 },
+            quantity: 4,
+            frequency: 25,
+        }).setDepth(49).setScrollFactor(0);
+
+        // Ground splash particles — small bursts where rain hits the floor
+        this.createSplashTexture();
+        this.add.particles(0, 0, 'rain_splash', {
+            x: { min: 0, max: 1024 },
+            y: 748,
+            lifespan: 300,
+            speedY: { min: -40, max: -80 },
+            speedX: { min: -30, max: 30 },
+            alpha: { start: 0.7, end: 0 },
+            scale: { start: 0.6, end: 0.1 },
+            quantity: 1,
+            frequency: 40,
+        }).setDepth(51).setScrollFactor(0);
+    }
+
+    private createSplashTexture() {
+        if (this.textures.exists('rain_splash')) return;
+        const gfx = this.add.graphics();
+        gfx.fillStyle(0xaaccff, 1);
+        gfx.fillCircle(3, 3, 3);
+        gfx.generateTexture('rain_splash', 6, 6);
+        gfx.destroy();
+    }
+
+    private createThunder() {
+        const flash = this.add.rectangle(512, 384, 1024, 768, 0xffffff)
+            .setScrollFactor(0).setDepth(80).setAlpha(0);
+
+        const bolt = this.add.graphics().setDepth(79).setScrollFactor(0).setAlpha(0);
+
+        const randInt = (min: number, max: number) =>
+            Math.floor(Math.random() * (max - min + 1)) + min;
+
+        let active = true;
+        this.events.once('shutdown', () => { active = false; });
+
+        const strike = () => {
+            if (!active) return;
+
+            // Main lightning bolt reaching down to the ground
+            bolt.clear();
+            bolt.lineStyle(4, 0xccddff, 1);
+            const startX = randInt(80, 944);
+            let x = startX;
+            let y = 0;
+            bolt.beginPath();
+            bolt.moveTo(x, y);
+            while (y < 740) {
+                x += randInt(-35, 35);
+                y += randInt(25, 60);
+                bolt.lineTo(x, y);
+            }
+            bolt.strokePath();
+
+            // Branch bolts for realism
+            for (let b = 0; b < randInt(1, 3); b++) {
+                bolt.lineStyle(1.5, 0xaabbee, 0.7);
+                const branchY = randInt(80, 400);
+                const branchX = startX + randInt(-30, 30);
+                bolt.beginPath();
+                bolt.moveTo(branchX, branchY);
+                let bx = branchX;
+                let by = branchY;
+                for (let i = 0; i < randInt(3, 6); i++) {
+                    bx += randInt(-30, 30);
+                    by += randInt(20, 45);
+                    bolt.lineTo(bx, by);
+                }
+                bolt.strokePath();
+            }
+
+            // Ground impact glow
+            const impactX = x;
+            bolt.fillStyle(0xccddff, 0.4);
+            const glowW = randInt(40, 80);
+            bolt.fillRoundedRect(impactX - glowW / 2, 742, glowW, 12, 6);
+
+            // Flash + shake
+            bolt.setAlpha(1);
+            flash.setAlpha(0.25);
+            this.cameras.main.shake(150, 0.004);
+
+            this.tweens.add({
+                targets: [bolt, flash],
+                alpha: 0,
+                duration: 250,
+                onComplete: () => {
+                    if (!active) return;
+                    // Double-flash for dramatic effect
+                    if (Math.random() < 0.5) {
+                        this.time.delayedCall(80, () => {
+                            if (!active) return;
+                            flash.setAlpha(0.12);
+                            bolt.setAlpha(0.4);
+                            this.tweens.add({ targets: [bolt, flash], alpha: 0, duration: 180 });
+                        });
+                    }
+                },
+            });
+
+            // More frequent strikes for boss intensity
+            this.time.delayedCall(randInt(2000, 5000), strike);
+        };
+
+        // First strike quickly
+        this.time.delayedCall(randInt(500, 1500), strike);
     }
 
     update(_time: number, delta: number) {

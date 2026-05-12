@@ -1,7 +1,7 @@
 /** Skill identifiers */
 export enum Skill {
     DASH = 'DASH',
-    COMBO_PUNCH = 'COMBO_PUNCH',
+    FIST_LAUNCH = 'FIST_LAUNCH',
     GROUND_SLAM = 'GROUND_SLAM',
 }
 

@@ -116,10 +116,17 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
                 break;
             }
             case 'chase': {
-                const dir = this.target.x > this.x ? 1 : -1;
-                body.setVelocityX(dir * CHASE_SPEED);
-                this.facingRight = dir > 0;
-                this.setFlipX(!this.facingRight);
+                const dx = this.target.x - this.x;
+                const dy = this.target.y - this.y;
+                // If player is above and nearly aligned horizontally, wait below
+                if (dy < -60 && Math.abs(dx) < 40) {
+                    body.setVelocityX(0);
+                } else {
+                    const dir = dx > 0 ? 1 : -1;
+                    body.setVelocityX(dir * CHASE_SPEED);
+                    this.facingRight = dir > 0;
+                    this.setFlipX(!this.facingRight);
+                }
                 break;
             }
             case 'attack': {
